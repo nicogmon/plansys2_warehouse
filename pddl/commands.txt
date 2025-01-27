@@ -1,0 +1,40 @@
+
+//instancias a añadir 
+princ_table -table
+dishes -dishes
+bed -bed
+trash -trash
+person1 -person
+kitchen bedroom livingroom  entrance gym - waypoint
+kobuki - robot
+principal_door - door
+beedroom_door - door
+bedroom_entrance1 bedroom_entrance2 - door_wp
+bedroom_exit1 bedroom_exit2 - door_wp
+
+
+set instance princ_table table
+set instance dishes dishes
+set instance bed bed
+set instance trash trash    
+set instance person1 person
+set instance 
+
+
+
+
+set predicate (star_at star alderaan)
+
+set predicate (connected coruscant endor)
+set predicate (connected coruscant endor)
+set predicate (connected coruscant alderaan)
+set predicate (connected alderaan coruscant)
+set predicate (connected coruscant dantooine)
+set predicate (connected dantooine coruscant)
+set predicate (connected endor hoth)
+set predicate (connected hoth endor)
+set predicate (connected endor yavin4)
+set predicate (connected yavin4 endor)
+
+
+set goal (and (destroyed yavin4) (star_at star endor))

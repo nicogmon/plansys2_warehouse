@@ -1,0 +1,7 @@
+<root BTCPP_format="4" main_tree_to_execute = "MainTree" >
+    <BehaviorTree ID="MainTree">
+        <Sequence name="root_sequence">
+            <Unload_box name="unload_box"/>
+        </Sequence>
+    </BehaviorTree>
+</root>
