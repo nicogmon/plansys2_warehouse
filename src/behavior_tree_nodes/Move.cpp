@@ -17,7 +17,7 @@
 #include <vector>
 #include <memory>
 
-#include "plansys2_warehouse_problem/behavior_tree_nodes/Move.hpp"
+#include "plansys2_warehouse/behavior_tree_nodes/Move.hpp"
 
 #include "geometry_msgs/msg/pose2_d.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
@@ -26,7 +26,7 @@
 
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-namespace plansys2_warehouse_problem
+namespace plansys2_warehouse
 {
 
 Move::Move(
@@ -114,7 +114,7 @@ Move::on_success()
 }
 
 
-}  // namespace plansys2_warehouse_problem
+}  // namespace plansys2_warehouse
 
 #include "behaviortree_cpp/bt_factory.h"
 BT_REGISTER_NODES(factory)
@@ -122,10 +122,10 @@ BT_REGISTER_NODES(factory)
   BT::NodeBuilder builder =
     [](const std::string & name, const BT::NodeConfiguration & config)
     {
-      return std::make_unique<plansys2_warehouse_problem::Move>(
+      return std::make_unique<plansys2_warehouse::Move>(
         name, "navigate_to_pose", config);
     };
 
-  factory.registerBuilder<plansys2_warehouse_problem::Move>(
+  factory.registerBuilder<plansys2_warehouse::Move>(
     "Move", builder);
 }

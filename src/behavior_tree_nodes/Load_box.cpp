@@ -15,11 +15,11 @@
 #include <string>
 #include <iostream>
 
-#include "plansys2_warehouse_problem/behavior_tree_nodes/Load_box.hpp"
+#include "plansys2_warehouse/behavior_tree_nodes/Load_box.hpp"
 
 #include "behaviortree_cpp/behavior_tree.h"
 
-namespace plansys2_warehouse_problem
+namespace plansys2_warehouse
 {
 
 Load_box::Load_box(
@@ -53,5 +53,5 @@ Load_box::tick()
 #include "behaviortree_cpp/bt_factory.h"
 BT_REGISTER_NODES(factory)
 {
-  factory.registerNodeType<plansys2_warehouse_problem::Load_box>("Load_box");
+  factory.registerNodeType<plansys2_warehouse::Load_box>("Load_box");
 }

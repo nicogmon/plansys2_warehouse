@@ -24,7 +24,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     # Get the launch directory
-    example_dir = get_package_share_directory('plansys2_warehouse_problem')
+    example_dir = get_package_share_directory('plansys2_warehouse')
     print("example_dir: %s", example_dir)
     namespace = LaunchConfiguration('namespace')
 

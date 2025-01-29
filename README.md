@@ -15,7 +15,7 @@ ros2 run plansys2_warehouse_problem nav2_sim_node
 ```
 * **Paquete de plansys2_warehouse**
 ```bash
-ros2 launch plansys2_warehouse_problem warehouse_problem_launch.py 
+ros2 launch plansys2_warehouse warehouse_problem_launch.py 
 ```
 
 * **Controlador**

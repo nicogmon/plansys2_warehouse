@@ -27,6 +27,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include <random>
+#include <fstream>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 class WarehouseController : public rclcpp::Node
 {
@@ -46,9 +48,23 @@ public:
 
     // std::string goal = "(and (box_at s_box_1 warehouse_2_sh) (box_at s_box_2 warehouse_2_sh) (box_at s_box_3 warehouse_2_sh) (box_at m_box_1 warehouse_2_sh) (box_at m_box_2 warehouse_2_sh) (box_at m_box_3 warehouse_2_sh))";
     // "(and( (bed_tied princ_bed) (table_setup princ_table) (cleaned_dishes dishes1) (trash_pickup trashbin) (person_attended person1 livingroom) (robot_at kobuki entrance)))" (person_attended person1 livingroom)
-    std::string goal = "(and (box_at s_box_1 warehouse_2_sh) (box_at s_box_2 warehouse_2_sh) )";
+    std::string package_share_directory = ament_index_cpp::get_package_share_directory("plansys2_warehouse");
+    std::cout << "package_share_directory: " << package_share_directory << std::endl;
+    std::ifstream file(package_share_directory + "/config/Goals.txt");
+    
+    if (!file.is_open()) {
+        std::cerr << "Error: No se pudo abrir el archivo Goals.txt" << std::endl;
+        return false;
+    }
+    std::string line;
+    std::getline(file, line);
+    std::ostringstream p_goal;
+    p_goal << "(and (" << line << "))" << std::endl;
+    std::string f_goal = p_goal.str();
+    RCLCPP_INFO(get_logger(), "Goal: %s", f_goal.c_str());
+    // std::string goal = "(and (box_at s_box_1 warehouse_2_sh) (box_at s_box_2 warehouse_2_sh) )";
 
-    problem_expert_->setGoal(plansys2::Goal(goal));
+    problem_expert_->setGoal(plansys2::Goal(f_goal));
     
 
     auto domain = domain_expert_->getDomain();
@@ -187,6 +203,15 @@ public:
 
   void step()
   {
+    auto feedback = executor_client_->getFeedBack();
+    
+    for (const auto &action_feedback : feedback.action_execution_status) {
+          RCLCPP_INFO(get_logger(), "Acción: %s, Estado: %d",
+                      action_feedback.action_full_name.c_str(),
+                      action_feedback.status);
+    }
+    // estado 1 esperando 2 ejectuando 3 fallido 4 exitoso 5 cancelado
+
     if (!executor_client_->execute_and_check_plan()) {  // Plan finished
       auto result = executor_client_->getResult();
 

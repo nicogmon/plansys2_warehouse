@@ -12,46 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PLANSYS2_WAREHOUSE_PROBLEM__BEHAVIOR_TREE_NODES__MOVE_HPP_
-#define PLANSYS2_WAREHOUSE_PROBLEM__BEHAVIOR_TREE_NODES__MOVE_HPP_
+#ifndef PLANSYS2_WAREHOUSE__BEHAVIOR_TREE_NODES__LOAD_BOX_HPP_
+#define PLANSYS2_WAREHOUSE__BEHAVIOR_TREE_NODES__LOAD_BOX_HPP_
 
 #include <string>
-#include <map>
 
-#include "geometry_msgs/msg/pose2_d.hpp"
-#include "nav2_msgs/action/navigate_to_pose.hpp"
-
-#include "plansys2_bt_actions/BTActionNode.hpp"
 #include "behaviortree_cpp/behavior_tree.h"
 #include "behaviortree_cpp/bt_factory.h"
 
-namespace plansys2_warehouse_problem
+namespace plansys2_warehouse
 {
 
-class Move : public plansys2::BtActionNode<
-    nav2_msgs::action::NavigateToPose>
+class Load_box : public BT::ActionNodeBase
 {
 public:
-  explicit Move(
+  explicit Load_box(
     const std::string & xml_tag_name,
-    const std::string & action_name,
     const BT::NodeConfiguration & conf);
 
-  BT::NodeStatus on_tick() override;
-  BT::NodeStatus on_success() override;
+  void halt();
+  BT::NodeStatus tick();
 
   static BT::PortsList providedPorts()
   {
-    return {
-      BT::InputPort<std::string>("goal")
-    };
+    return BT::PortsList({});
   }
 
 private:
-  int goal_reached_;
-  std::map<std::string, geometry_msgs::msg::Pose2D> waypoints_;
+  int counter_;
 };
 
-}  // namespace plansys2_house_problem
+}  // namespace plansys2_house
 
-#endif  // PLANSYS2_HOUSE_PROBLEM__BEHAVIOR_TREE_NODES__MOVE_HPP_
+#endif  // PLANSYS2_HOUSE_PROBLEM__BEHAVIOR_TREE_NODES__LOAD_BOX_HPP_

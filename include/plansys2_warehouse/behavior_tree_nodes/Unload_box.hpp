@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PLANSYS2_WAREHOUSE_PROBLEM__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_
-#define PLANSYS2_WAREHOUSE_PROBLEM__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_
+#ifndef PLANSYS2_WAREHOUSE__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_
+#define PLANSYS2_WAREHOUSE__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_
 
 #include <string>
 
 #include "behaviortree_cpp/behavior_tree.h"
 #include "behaviortree_cpp/bt_factory.h"
 
-namespace plansys2_warehouse_problem
+namespace plansys2_warehouse
 {
 
 class Unload_box : public BT::ActionNodeBase
@@ -42,6 +42,6 @@ private:
   int counter_;
 };
 
-}  // namespace plansys2_warehouse_problem
+}  // namespace plansys2_warehouse
 
 #endif  // PLANSYS2_HOUSE_PROBLEM__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_

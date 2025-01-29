@@ -15,11 +15,11 @@
 #include <string>
 #include <iostream>
 
-#include "plansys2_warehouse_problem/behavior_tree_nodes/Unload_box.hpp"
+#include "plansys2_warehouse/behavior_tree_nodes/Unload_box.hpp"
 
 #include "behaviortree_cpp/behavior_tree.h"
 
-namespace plansys2_warehouse_problem
+namespace plansys2_warehouse
 {
 
 Unload_box::Unload_box(
@@ -53,5 +53,5 @@ Unload_box::tick()
 #include "behaviortree_cpp/bt_factory.h"
 BT_REGISTER_NODES(factory)
 {
-  factory.registerNodeType<plansys2_warehouse_problem::Unload_box>("Unload_box");
+  factory.registerNodeType<plansys2_warehouse::Unload_box>("Unload_box");
 }
