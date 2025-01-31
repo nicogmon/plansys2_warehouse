@@ -204,13 +204,42 @@ public:
   void step()
   {
     auto feedback = executor_client_->getFeedBack();
-    
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_NOT_EXECUTED;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_FAILED;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_SUCCEEDED;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
+
     for (const auto &action_feedback : feedback.action_execution_status) {
-          RCLCPP_INFO(get_logger(), "Acción: %s, Estado: %d",
-                      action_feedback.action_full_name.c_str(),
-                      action_feedback.status);
+          if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::NOT_EXECUTED) {
+            action_NOT_EXECUTED.push_back(action_feedback);
+          } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::EXECUTING) {
+            action_EXECUTING.push_back(action_feedback);
+          } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::FAILED) {
+            action_FAILED.push_back(action_feedback);
+          } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::SUCCEEDED) {
+            action_SUCCEEDED.push_back(action_feedback);
+          } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
+            action_CANCELLED.push_back(action_feedback);
+          }
     }
-    // estado 1 esperando 2 ejectuando 3 fallido 4 exitoso 5 cancelado
+    for (const auto &action : action_NOT_EXECUTED) {
+      RCLCPP_INFO(get_logger(), "Action %s NOT_EXECUTED", action.action_full_name.c_str());
+    }
+    for (const auto &action : action_EXECUTING) {
+      RCLCPP_INFO(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
+    }
+    for (const auto &action : action_FAILED) {
+      RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
+    }
+    for (const auto &action : action_SUCCEEDED) {
+      RCLCPP_INFO(get_logger(), "Action %s SUCCEEDED", action.action_full_name.c_str());
+    }
+    for (const auto &action : action_CANCELLED) {
+      RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
+    }
+    std::cout << "\n\n" << std::endl;
+    // estado 1 esperando, 2 ejectuando, 3 fallido, 4 exitoso, 5 cancelado
 
     if (!executor_client_->execute_and_check_plan()) {  // Plan finished
       auto result = executor_client_->getResult();
@@ -219,6 +248,18 @@ public:
         RCLCPP_INFO(get_logger(), "Plan succesfully finished");
       } else {
         RCLCPP_ERROR(get_logger(), "Plan finished with error");
+        init_knowledge();
+        auto domain = domain_expert_->getDomain();
+        auto problem = problem_expert_->getProblem();
+        auto plan = planner_client_->getPlan(domain, problem);
+
+        if (!plan.has_value()) {
+            std::cout << "Could not find plan to reach goal " <<
+              parser::pddl::toString(problem_expert_->getGoal()) << std::endl;
+        }
+        //Muere el nodo move y los robots se quedan en localizacion desconocida a no 
+        // ser ue haga init_knowledge() pero el nodoo move sigue muriendo 
+        
       }
     }
   }

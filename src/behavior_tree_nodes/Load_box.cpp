@@ -39,7 +39,10 @@ BT::NodeStatus
 Load_box::tick()
 {
   std::cout << "Load_box tick " << counter_ << std::endl;
-
+  if (rand() % 1 == 0) {
+    std::cout << "Load_box failed" << std::endl;
+    return BT::NodeStatus::FAILURE;
+  }
   if (counter_++ < 5) {
     return BT::NodeStatus::RUNNING;
   } else {

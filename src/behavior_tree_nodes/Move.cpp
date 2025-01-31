@@ -112,9 +112,14 @@ Move::on_success()
 {
   return BT::NodeStatus::SUCCESS;
 }
-
+void Move::halt()
+{
+  std::cout << "Move halt" << std::endl;
+}
 
 }  // namespace plansys2_warehouse
+
+
 
 #include "behaviortree_cpp/bt_factory.h"
 BT_REGISTER_NODES(factory)
