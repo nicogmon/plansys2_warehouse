@@ -44,13 +44,15 @@ public:
   static BT::PortsList providedPorts()
   {
     return {
-      BT::InputPort<std::string>("goal")
+      BT::InputPort<std::string>("goal"),BT::InputPort<std::string>("robot")
     };
   }
+  
 
 private:
   int goal_reached_;
   std::map<std::string, geometry_msgs::msg::Pose2D> waypoints_;
+  std::string robot_name_;
 };
 
 }  // namespace plansys2_house

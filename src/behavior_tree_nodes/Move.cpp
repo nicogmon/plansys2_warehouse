@@ -53,7 +53,7 @@ Move::Move(
 
     for (auto & wp : wp_names) {
       try {
-        node->declare_parameter<std::vector<double>>("waypoint_coords." + wp);
+        node->declare_parameter<std::vector<double>>("waypoint_coords." + wp);//añadir parametro robot_name  
       } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException & e) {
         // Do nothing;
       }
@@ -69,8 +69,11 @@ Move::Move(
       } else {
         std::cerr << "No coordinate configured for waypoint [" << wp << "]" << std::endl;
       }
+      //rellenar el parametro 
     }
   }
+
+
 }
 
 BT::NodeStatus
@@ -81,7 +84,13 @@ Move::on_tick()
     if (!config().blackboard->get("node", node)) {
       RCLCPP_ERROR(node_->get_logger(), "Failed to get 'node' from the blackboard");
     }
-
+    /////////////////////////////////////////////////
+    // Obtener el nombre del robot desde la acción PDDL
+    std::string robot;
+    getInput<std::string>("robot", robot);
+    std::cout << "robot: " << robot << std::endl;
+    std::string action_with_namespace = robot + "/navigate_to_pose"; 
+    //////////////////////////////////////////////////////////////////
     std::string goal;
     getInput<std::string>("goal", goal);
 
@@ -127,8 +136,10 @@ BT_REGISTER_NODES(factory)
   BT::NodeBuilder builder =
     [](const std::string & name, const BT::NodeConfiguration & config)
     {
+      
       return std::make_unique<plansys2_warehouse::Move>(
         name, "navigate_to_pose", config);
+
     };
 
   factory.registerBuilder<plansys2_warehouse::Move>(
