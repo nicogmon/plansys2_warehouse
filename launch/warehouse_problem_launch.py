@@ -46,10 +46,40 @@ def generate_launch_description():
 
     # Specify the actions
 
-    move_cmd = Node(
+    small_robot_move_cmd = Node(
         package='plansys2_warehouse',
         executable='move_node',
         name='move1',
+        namespace=namespace,
+        output='screen',
+        parameters=[
+          example_dir + '/config/params.yaml',
+          {
+            'action_name': 'move',
+            'publisher_port': 1668,
+            'server_port': 1669,
+            
+          }
+        ])
+    med_robot_move_cmd = Node(
+        package='plansys2_warehouse',
+        executable='move_node',
+        name='move2',
+        namespace=namespace,
+        output='screen',
+        parameters=[
+          example_dir + '/config/params.yaml',
+          {
+            'action_name': 'move',
+            'publisher_port': 1668,
+            'server_port': 1669,
+            
+          }
+        ])
+    big_robot_move_cmd = Node(
+        package='plansys2_warehouse',
+        executable='move_node',
+        name='move3',
         namespace=namespace,
         output='screen',
         parameters=[
@@ -101,7 +131,9 @@ def generate_launch_description():
     
     
 
-    ld.add_action(move_cmd)
+    ld.add_action(small_robot_move_cmd)
+    ld.add_action(med_robot_move_cmd)
+    ld.add_action(big_robot_move_cmd)
     ld.add_action(load_box_cmd)
     ld.add_action(unload_box_cmd)
 

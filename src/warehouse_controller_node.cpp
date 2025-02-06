@@ -115,14 +115,14 @@ public:
     
 
     
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_at small_robot s_sh_1)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_at small_robot s_central)"));
     problem_expert_->addPredicate(plansys2::Predicate("(robot_zone small_robot small_zone)"));
     problem_expert_->addPredicate(plansys2::Predicate("(idle_robot small_robot)"));
     problem_expert_->addFunction(plansys2::Function("(= (robot_capacity small_robot) 1)"));
     problem_expert_->addFunction(plansys2::Function("(= (current_robot_load small_robot) 0)"));
 
 
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_at medium_robot m_sh_1)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_at medium_robot m_central)"));
     problem_expert_->addPredicate(plansys2::Predicate("(robot_zone medium_robot medium_zone)"));
     problem_expert_->addPredicate(plansys2::Predicate("(idle_robot medium_robot)"));
     problem_expert_->addFunction(plansys2::Function("(= (robot_capacity medium_robot) 3)"));

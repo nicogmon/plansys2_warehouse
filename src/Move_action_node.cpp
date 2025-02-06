@@ -23,7 +23,7 @@ using namespace std::chrono_literals;
 namespace plansys2_warehouse
 {
 Move::Move()
-: plansys2::ActionExecutorClient("load_box", 1s)
+: plansys2::ActionExecutorClient("move", 1s)
 {
   declare_parameter<std::vector<std::string>>("waypoints", std::vector<std::string>());
 
@@ -32,6 +32,7 @@ Move::Move()
     get_parameter_or("waypoints", wp_names, {});
     
     for (const auto & wp : wp_names) {
+      std::cout << "Waypoint: " << wp << std::endl;
       declare_parameter<std::vector<double>>("waypoint_coords." + wp);
       std::vector<double> coords;
       
@@ -73,11 +74,15 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   {
     send_feedback(0.0, "Move starting");
 
+    std::string robot = get_arguments()[0];
+    RCLCPP_INFO(get_logger(), "Robot: %s", robot.c_str());
+
     navigation_action_client_ =
       rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
       shared_from_this(),
-      "navigate_to_pose");
-
+      "/navigate_to_pose");//añadir el namspace del robot  que realiza la accion robot + "/navigate_to_pose" 
+                            //nav2_sim_node solo acepta en el generico opcion de hacer tres o que ese nodo lanze 3 servicios
+ 
     bool is_action_server_ready = false;
     do {
       RCLCPP_INFO(get_logger(), "Waiting for navigation action server...");
@@ -87,6 +92,9 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     } while (!is_action_server_ready);
 
     RCLCPP_INFO(get_logger(), "Navigation action server ready");
+    for (auto argument : get_arguments()) {
+      RCLCPP_INFO(get_logger(), "Argument: %s", argument.c_str());
+    }
 
     auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
     RCLCPP_INFO(get_logger(), "Start navigation to [%s]", wp_to_navigate.c_str());
