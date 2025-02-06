@@ -43,14 +43,14 @@ include_directories(include)
 
 
 
-add_library(move_node SHARED src/behavior_tree_nodes/Move.cpp)
-list(APPEND plugin_libs move_node)
+# add_library(move_node SHARED src/behavior_tree_nodes/Move.cpp)
+# list(APPEND plugin_libs move_node)
 
-add_library(load_node SHARED src/behavior_tree_nodes/Load_box.cpp)
-list(APPEND plugin_libs load_node)
+# add_library(load_node SHARED src/Load_box_action_node.cpp)
+# list(APPEND plugin_libs load_node)
 
-add_library(unload_node SHARED src/behavior_tree_nodes/Unload_box.cpp)
-list(APPEND plugin_libs unload_node)
+# add_library(unload_node SHARED src/behavior_tree_nodes/Unload_box.cpp)
+# list(APPEND plugin_libs unload_node)
 
 
 
@@ -61,6 +61,15 @@ foreach(bt_plugin ${plugin_libs})
   target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
 endforeach()#revisar si hace falta behavior trees
 
+add_executable(move_node src/Move_action_node.cpp)
+ament_target_dependencies(move_node ${dependencies})
+
+add_executable(load_node src/Load_box_action_node.cpp)
+ament_target_dependencies(load_node ${dependencies})
+
+add_executable(unload_node src/Unload_box_action_node.cpp)
+ament_target_dependencies(unload_node ${dependencies})
+
 add_executable(warehouse_controller_node src/warehouse_controller_node.cpp)
 ament_target_dependencies(warehouse_controller_node ${dependencies})
 
@@ -70,6 +79,9 @@ ament_target_dependencies(nav2_sim_node ${dependencies})
 install(DIRECTORY launch pddl behavior_trees_xml config DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
+  move_node
+  load_node
+  unload_node
   
   warehouse_controller_node
   nav2_sim_node

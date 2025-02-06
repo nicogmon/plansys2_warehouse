@@ -47,9 +47,9 @@ def generate_launch_description():
     # Specify the actions
 
     move_cmd = Node(
-        package='plansys2_bt_actions',
-        executable='bt_action_node',
-        name='move',
+        package='plansys2_warehouse',
+        executable='move_node',
+        name='move1',
         namespace=namespace,
         output='screen',
         parameters=[
@@ -58,39 +58,24 @@ def generate_launch_description():
             'action_name': 'move',
             'publisher_port': 1668,
             'server_port': 1669,
-            'bt_xml_file': example_dir + '/behavior_trees_xml/move.xml'
+            
           }
         ])
     load_box_cmd = Node(
-        package='plansys2_bt_actions',
-        executable='bt_action_node',
-        name='load_box',
+        package='plansys2_warehouse',
+        executable='load_node',
+        name='load_box1',
         namespace=namespace,
         output='screen',
-        parameters=[   
-          example_dir + '/config/params.yaml',{
-            'action_name': 'load_box',
-            'publisher_port': 1670,
-            'server_port': 1671,
-            'bt_xml_file': example_dir + '/behavior_trees_xml/load_box.xml'
-          }    
-        ])
+        parameters=[])
              
     unload_box_cmd = Node(
-        package='plansys2_bt_actions',
-        executable='bt_action_node',
-        name='unload_box',
+        package='plansys2_warehouse',
+        executable='unload_node',
+        name='unload_box1',
         namespace=namespace,
         output='screen',
-        parameters=[
-          example_dir + '/config/params.yaml',
-          {
-            'action_name': 'unload_box',
-            'publisher_port': 1672,
-            'server_port': 1673,
-            'bt_xml_file': example_dir + '/behavior_trees_xml/unload_box.xml'
-          }
-        ])
+        parameters=[])
     
     
     # controller_cmd = Node(
