@@ -35,11 +35,13 @@ Unload_box::Unload_box()
 void Unload_box::do_work()
 {
   std::cout << "Unload_box tick " << counter_ << std::endl;
+  
+  counter_++;
+
   // if (rand() % 1 == 0) {
   //   std::cout << "Unload_box failed" << std::endl;
-  //   return BT::NodeStatus::FAILURE;
+  //   finish(false, counter / 5, "Unload_box failed");
   // }
-  counter_++;
   if (counter_ < 5) {
     send_feedback(counter_, "Patrol running");
 
@@ -47,6 +49,7 @@ void Unload_box::do_work()
     counter_ = 0;
     finish(true, 1.0, "Patrol completed");//segundo parametro nos puede servir
                                           //para indicar fallo a mitad de ejecucion
+                                          // y el rpimero indicar que ha fallado la accion
   }
 }
 

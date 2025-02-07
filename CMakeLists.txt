@@ -76,6 +76,9 @@ ament_target_dependencies(warehouse_controller_node ${dependencies})
 add_executable(nav2_sim_node src/nav2_sim_node.cpp)
 ament_target_dependencies(nav2_sim_node ${dependencies})
 
+add_executable(goal_reader src/goal_reader.cpp)
+ament_target_dependencies(goal_reader ${dependencies})
+
 install(DIRECTORY launch pddl behavior_trees_xml config DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
@@ -85,6 +88,7 @@ install(TARGETS
   
   warehouse_controller_node
   nav2_sim_node
+  goal_reader
   ${plugin_libs}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

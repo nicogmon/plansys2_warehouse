@@ -31,11 +31,12 @@ Load_box::Load_box()
 void Load_box::do_work()
 {
   std::cout << "Load_box tick " << counter_ << std::endl;
-  // if (rand() % 1 == 0) {
-  //   std::cout << "Load_box failed" << std::endl;
-  //   return BT::NodeStatus::FAILURE;
-  // }
+  
   counter_++;
+  // if (rand() % 1 == 0) {
+  //   std::cout << "Unload_box failed" << std::endl;
+  //   finish(false, counter / 5, "Unload_box failed");
+  // }
   if (counter_ < 5) {
     send_feedback(counter_, "Patrol running");
 

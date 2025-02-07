@@ -29,6 +29,8 @@
 #include <random>
 #include <fstream>
 #include <ament_index_cpp/get_package_share_directory.hpp>
+#include <chrono>
+#include "std_msgs/msg/string.hpp"
 
 class WarehouseController : public rclcpp::Node
 {
@@ -36,10 +38,24 @@ public:
   WarehouseController()
   : rclcpp::Node("warehouse_controller")
   {
+    goal_suscriber_ = this->create_subscription<std_msgs::msg::String>(
+      "/Goal", 10, std::bind(&WarehouseController::goal_callback, this, std::placeholders::_1));
+    
+
+
+  }
+  void goal_callback(const std_msgs::msg::String::SharedPtr msg)
+  {
+    // RCLCPP_INFO(get_logger(), "I heard: '%s'", msg->data.c_str());
+    goal_ = msg->data.c_str();
   }
 
-  bool init()
+  int init()
   {
+    if (goal_.empty()) {
+      RCLCPP_INFO(get_logger(), "Goal not received yet");
+      return 0;
+    }
     domain_expert_ = std::make_shared<plansys2::DomainExpertClient>();
     planner_client_ = std::make_shared<plansys2::PlannerClient>();
     problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
@@ -52,19 +68,26 @@ public:
     std::cout << "package_share_directory: " << package_share_directory << std::endl;
     std::ifstream file(package_share_directory + "/config/Goals.txt");
     
-    if (!file.is_open()) {
-        std::cerr << "Error: No se pudo abrir el archivo Goals.txt" << std::endl;
-        return false;
-    }
-    std::string line;
-    std::getline(file, line);
-    std::ostringstream p_goal;
-    p_goal << "(and (" << line << "))" << std::endl;
-    std::string f_goal = p_goal.str();
-    RCLCPP_INFO(get_logger(), "Goal: %s", f_goal.c_str());
+    // if (!file.is_open()) {
+    //     std::cerr << "Error: No se pudo abrir el archivo Goals.txt" << std::endl;
+    //     return false;
+    // }
+    // std::string line;
+    // std::getline(file, line);
+    // std::ostringstream p_goal;
+    // p_goal << "(and (" << line << "))" << std::endl;
+    // std::string f_goal = p_goal.str();
+    // RCLCPP_INFO(get_logger(), "Goal: %s", f_goal.c_str());
     // std::string goal = "(and (box_at s_box_1 warehouse_2_sh) (box_at s_box_2 warehouse_2_sh) )";
 
-    problem_expert_->setGoal(plansys2::Goal(f_goal));
+  
+    
+   // Frecuencia de espera (10 Hz)
+    
+    
+    problem_expert_->setGoal(plansys2::Goal(goal_));
+    RCLCPP_INFO(get_logger(), "Goal set successfully: %s", goal_.c_str());
+    
     
 
     auto domain = domain_expert_->getDomain();
@@ -74,14 +97,14 @@ public:
     if (!plan.has_value()) {
         std::cout << "Could not find plan to reach goal " <<
           parser::pddl::toString(problem_expert_->getGoal()) << std::endl;
-        return false;
+        return -1;
     }
 
     // Execute the plan
     if (!executor_client_->start_plan_execution(plan.value())) {
       RCLCPP_ERROR(get_logger(), "Error starting a new plan (first)");
     }
-    return true;
+    return 1;
   }
 
   void init_knowledge()
@@ -266,11 +289,13 @@ public:
   }
 
 
-
+  std::string goal_;
 private:
   // typedef enum {STARTING, DESTROY } StateType;
   // StateType state_;
   // std::string planet;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr goal_suscriber_;
+  // std::string goal_;
 
   std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
   std::shared_ptr<plansys2::PlannerClient> planner_client_;
@@ -282,10 +307,18 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto node = std::make_shared<WarehouseController>();
+  
 
-  if (!node->init()) {
-    return 0;
+  int result = node->init();
+  while (result == 0) {
+      rclcpp::spin_some(node->get_node_base_interface());
+      result = node->init();  
   }
+  if (result == -1) {
+      std::cout << "Error en la inicialización" << std::endl;
+      return 0;
+  }
+  
 
   rclcpp::Rate rate(5);
   while (rclcpp::ok() ) {
