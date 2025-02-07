@@ -229,15 +229,15 @@ public:
     for (const auto &action : action_EXECUTING) {
       RCLCPP_INFO(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
     }
-    for (const auto &action : action_FAILED) {
-      RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
-    }
-    for (const auto &action : action_SUCCEEDED) {
-      RCLCPP_INFO(get_logger(), "Action %s SUCCEEDED", action.action_full_name.c_str());
-    }
-    for (const auto &action : action_CANCELLED) {
-      RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
-    }
+    // for (const auto &action : action_FAILED) {
+    //   RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
+    // }
+    // for (const auto &action : action_SUCCEEDED) {
+    //   RCLCPP_INFO(get_logger(), "Action %s SUCCEEDED", action.action_full_name.c_str());
+    // }
+    // for (const auto &action : action_CANCELLED) {
+    //   RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
+    // }
     std::cout << "\n\n" << std::endl;
     // estado 1 esperando, 2 ejectuando, 3 fallido, 4 exitoso, 5 cancelado
 
@@ -246,6 +246,7 @@ public:
 
       if (result.value().success) {
         RCLCPP_INFO(get_logger(), "Plan succesfully finished");
+        exit(0);
       } else {
         RCLCPP_ERROR(get_logger(), "Plan finished with error");
         init_knowledge();

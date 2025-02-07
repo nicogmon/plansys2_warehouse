@@ -23,16 +23,17 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 def generate_launch_description():
+    ld = LaunchDescription()
+  
     # Get the launch directory
     example_dir = get_package_share_directory('plansys2_warehouse')
-    print("example_dir: %s", example_dir)
     namespace = LaunchConfiguration('namespace')
 
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
         description='Namespace')
-
+    
     plansys2_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(
             get_package_share_directory('plansys2_bringup'),
@@ -44,68 +45,52 @@ def generate_launch_description():
             }.items()
         )
 
-    # Specify the actions
+    ld.add_action(declare_namespace_cmd)
+    ld.add_action(plansys2_cmd)
 
-    small_robot_move_cmd = Node(
-        package='plansys2_warehouse',
-        executable='move_node',
-        name='move1',
-        namespace=namespace,
-        output='screen',
-        parameters=[
-          example_dir + '/config/params.yaml',
-          {
-            'action_name': 'move',
-            'publisher_port': 1668,
-            'server_port': 1669,
-            
-          }
-        ])
-    med_robot_move_cmd = Node(
-        package='plansys2_warehouse',
-        executable='move_node',
-        name='move2',
-        namespace=namespace,
-        output='screen',
-        parameters=[
-          example_dir + '/config/params.yaml',
-          {
-            'action_name': 'move',
-            'publisher_port': 1668,
-            'server_port': 1669,
-            
-          }
-        ])
-    big_robot_move_cmd = Node(
-        package='plansys2_warehouse',
-        executable='move_node',
-        name='move3',
-        namespace=namespace,
-        output='screen',
-        parameters=[
-          example_dir + '/config/params.yaml',
-          {
-            'action_name': 'move',
-            'publisher_port': 1668,
-            'server_port': 1669,
-            
-          }
-        ])
-    load_box_cmd = Node(
-        package='plansys2_warehouse',
-        executable='load_node',
-        name='load_box1',
-        namespace=namespace,
-        output='screen',
-        parameters=[])
-             
-    unload_box_cmd = Node(
-        package='plansys2_warehouse',
-        executable='unload_node',
-        name='unload_box1',
-        namespace=namespace,
-        output='screen',
-        parameters=[])
+    
+    robot_names = ["small_robot", "med_robot", "big_robot"]
+    move_nodes = {} 
+    load_nodes = {}
+    unload_nodes = {}
+
+    for i, robot_name in enumerate(robot_names, start=1):
+        move_nodes[f"move_node_{robot_name}"] = Node(
+            package='plansys2_warehouse',
+            executable='move_node',
+            name=f"move{i}",
+            namespace='',#preguntar a fran por el namesapce igual esto nos ayuda a la hora de que lo acccepte el action executor correcto
+            output='screen',
+            parameters=[
+                example_dir + '/config/params.yaml',
+                {
+                    'action_name': 'move',
+                    'publisher_port': 1668,
+                    'server_port': 1669
+                }
+            ])
+        
+        load_nodes[f"load_node_{robot_name}"] = Node(
+            package='plansys2_warehouse',
+            executable='load_node',
+            name=f"load_box{i}",
+            namespace='',
+            output='screen',
+            parameters=[])
+        
+        unload_nodes[f"unload_node_{robot_name}"] = Node(
+            package='plansys2_warehouse',
+            executable='unload_node',
+            name=f"unload_box{i}",
+            namespace='',
+            output='screen',
+            parameters=[])
+        
+
+        ld.add_action(move_nodes[f"move_node_{robot_name}"])
+        ld.add_action(load_nodes[f"load_node_{robot_name}"])
+        ld.add_action(unload_nodes[f"unload_node_{robot_name}"])
+    
     
     
     # controller_cmd = Node(
@@ -123,19 +108,11 @@ def generate_launch_description():
     
 
     # Create the launch description and populate
-    ld = LaunchDescription()
+    
 
     # Declare the launch options
-    ld.add_action(declare_namespace_cmd)
-    ld.add_action(plansys2_cmd)
     
     
-
-    ld.add_action(small_robot_move_cmd)
-    ld.add_action(med_robot_move_cmd)
-    ld.add_action(big_robot_move_cmd)
-    ld.add_action(load_box_cmd)
-    ld.add_action(unload_box_cmd)
 
     # ld.add_action(controller_cmd)
 
