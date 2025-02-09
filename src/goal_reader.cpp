@@ -23,7 +23,7 @@ public:
 
     void timer_callback(){
         std::string package_share_directory = ament_index_cpp::get_package_share_directory("plansys2_warehouse");
-        std::cout << "package_share_directory: " << package_share_directory << std::endl;
+        // std::cout << "package_share_directory: " << package_share_directory << std::endl;
         std::ifstream file(package_share_directory + "/config/Goals.txt");
         
         if (!file.is_open()) {
@@ -31,17 +31,17 @@ public:
             return;
         }
         std::ostringstream p_goal;
-        p_goal << "(and";  // Inicio del AND
+        p_goal << "(and ";  // Inicio del AND
     
         std::string line;
         while (std::getline(file, line)) {
             if (!line.empty()) {  // Evitar líneas vacías
-                p_goal << " (" << line << ")";
+                p_goal << "(" << line << ")";
             }
         }
-        p_goal << " )";  // Cierre del AND
+        p_goal << ")";  // Cierre del AND
         std::string f_goal = p_goal.str();
-        RCLCPP_INFO(get_logger(), "Goal: %s", f_goal.c_str());
+        // RCLCPP_INFO(get_logger(), "Goal: %s", f_goal.c_str());
         std_msgs::msg::String msg;
         msg.data = f_goal;
         publisher_->publish(msg);

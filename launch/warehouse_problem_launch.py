@@ -91,6 +91,15 @@ def generate_launch_description():
         ld.add_action(load_nodes[f"load_node_{robot_name}"])
         ld.add_action(unload_nodes[f"unload_node_{robot_name}"])
     
+    goal_reader_cmd = Node(
+        package='plansys2_warehouse',
+        executable='goal_reader_node',
+        name='goal_reader',
+        namespace='',
+        output='screen',
+        parameters=[example_dir + '/config/params.yaml']
+        )
+    ld.add_action(goal_reader_cmd)
     
     
     # controller_cmd = Node(

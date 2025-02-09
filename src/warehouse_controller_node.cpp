@@ -31,6 +31,7 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <chrono>
 #include "std_msgs/msg/string.hpp"
+#include "problem_checker.cpp"
 
 class WarehouseController : public rclcpp::Node
 {
@@ -61,34 +62,13 @@ public:
     problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
     executor_client_ = std::make_shared<plansys2::ExecutorClient>();
     init_knowledge();
+    problem_checker_ = std::make_shared<ProblemChecker>(problem_expert_);
 
     // std::string goal = "(and (box_at s_box_1 warehouse_2_sh) (box_at s_box_2 warehouse_2_sh) (box_at s_box_3 warehouse_2_sh) (box_at m_box_1 warehouse_2_sh) (box_at m_box_2 warehouse_2_sh) (box_at m_box_3 warehouse_2_sh))";
     // "(and( (bed_tied princ_bed) (table_setup princ_table) (cleaned_dishes dishes1) (trash_pickup trashbin) (person_attended person1 livingroom) (robot_at kobuki entrance)))" (person_attended person1 livingroom)
-    std::string package_share_directory = ament_index_cpp::get_package_share_directory("plansys2_warehouse");
-    std::cout << "package_share_directory: " << package_share_directory << std::endl;
-    std::ifstream file(package_share_directory + "/config/Goals.txt");
-    
-    // if (!file.is_open()) {
-    //     std::cerr << "Error: No se pudo abrir el archivo Goals.txt" << std::endl;
-    //     return false;
-    // }
-    // std::string line;
-    // std::getline(file, line);
-    // std::ostringstream p_goal;
-    // p_goal << "(and (" << line << "))" << std::endl;
-    // std::string f_goal = p_goal.str();
-    // RCLCPP_INFO(get_logger(), "Goal: %s", f_goal.c_str());
-    // std::string goal = "(and (box_at s_box_1 warehouse_2_sh) (box_at s_box_2 warehouse_2_sh) )";
-
-  
-    
-   // Frecuencia de espera (10 Hz)
-    
-    
+   
     problem_expert_->setGoal(plansys2::Goal(goal_));
     RCLCPP_INFO(get_logger(), "Goal set successfully: %s", goal_.c_str());
-    
-    
 
     auto domain = domain_expert_->getDomain();
     auto problem = problem_expert_->getProblem();
@@ -263,6 +243,16 @@ public:
     // }
     std::cout << "\n\n" << std::endl;
     // estado 1 esperando, 2 ejectuando, 3 fallido, 4 exitoso, 5 cancelado
+    
+    plansys2::Goal actual_goal = problem_expert_->getGoal();
+    std::cout << "Goal actual: " << parser::pddl::toString(actual_goal) << std::endl;
+    std::cout << "Goal esperado: " << goal_ << std::endl;
+
+    if (parser::pddl::toString(actual_goal) != goal_) {
+      RCLCPP_INFO(get_logger(), "Goal changed");
+    }
+
+    problem_checker_->check_problem();
 
     if (!executor_client_->execute_and_check_plan()) {  // Plan finished
       auto result = executor_client_->getResult();
@@ -295,6 +285,7 @@ private:
   // StateType state_;
   // std::string planet;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr goal_suscriber_;
+  std::shared_ptr<ProblemChecker> problem_checker_;
   // std::string goal_;
 
   std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
