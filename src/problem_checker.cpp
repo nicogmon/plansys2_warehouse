@@ -22,25 +22,53 @@ public:
 
     void check_problem()
     {
-        predicates_ = problem_expert_->getPredicates();
+        // Abre el archivo de salida en modo escritura (si no existe, se crea)
+        std::ofstream outFile("predicates.txt");
 
-        std::cout << "Predicates:" << std::endl;
+        if (!outFile.is_open()) {
+            std::cerr << "Error al abrir el archivo para escribir." << std::endl;
+            return;
+        }
+        predicates_ = problem_expert_->getPredicates();
+        outFile << "Predicates:" << std::endl;  // Escribe en el archivo
+
         for (const auto &predicate : predicates_) {
+            if(predicate.name == "connected" || predicate.name == "robot_zone" || predicate.name == "waypoint_from_zone"){
+                continue;
+            }
             for (int i = 0; i < predicate.parameters.size(); i++) {
                 if (i == 0) {
-                    std::cout << "(" << predicate.name << " ";
+                    outFile << "(" << predicate.name << " ";  // Escribe en el archivo
                 }
-                std::cout << predicate.parameters[i].name;
+                outFile << predicate.parameters[i].name;  // Escribe en el archivo
+
                 if (i < predicate.parameters.size() - 1) {
-                    std::cout << " " ;
+                    outFile << " ";  // Espacio entre parámetros
                 }
+
                 if (i == predicate.parameters.size() - 1) {
-                    std::cout << ")" << std::endl;
+                    outFile << ")" << std::endl;  // Cierra el paréntesis y escribe en el archivo
                 }
             }
-            
-
         }
+
+        // Cierra el archivo
+        outFile.close();
+        // std::cout << "Predicates:" << std::endl;
+        // for (const auto &predicate : predicates_) {
+        //     for (int i = 0; i < predicate.parameters.size(); i++) {
+        //         if (i == 0) {
+        //             std::cout << "(" << predicate.name << " ";
+        //         }
+        //         std::cout << predicate.parameters[i].name;
+        //         if (i < predicate.parameters.size() - 1) {
+        //             std::cout << " " ;
+        //         }
+        //         if (i == predicate.parameters.size() - 1) {
+        //             std::cout << ")" << std::endl;
+        //         }
+        //     }
+        // }
     }
 private:
     std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_;
