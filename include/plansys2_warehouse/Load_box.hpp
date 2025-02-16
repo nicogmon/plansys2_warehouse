@@ -20,6 +20,7 @@ private:
 
   void do_work() override;
   int counter_;
+  bool fail_flag_ = true;
 };
 
 }  // namespace plansys2_warehouse

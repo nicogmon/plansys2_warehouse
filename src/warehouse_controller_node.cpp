@@ -33,6 +33,7 @@
 #include "std_msgs/msg/string.hpp"
 #include "problem_checker.cpp"
 
+
 class WarehouseController : public rclcpp::Node
 {
 public:
@@ -63,6 +64,7 @@ public:
     executor_client_ = std::make_shared<plansys2::ExecutorClient>();
     init_knowledge();
     problem_checker_ = std::make_shared<ProblemChecker>(problem_expert_);
+    problem_checker_->get_necesary_predicates();
 
     // std::string goal = "(and (box_at s_box_1 warehouse_2_sh) (box_at s_box_2 warehouse_2_sh) (box_at s_box_3 warehouse_2_sh) (box_at m_box_1 warehouse_2_sh) (box_at m_box_2 warehouse_2_sh) (box_at m_box_3 warehouse_2_sh))";
     // "(and( (bed_tied princ_bed) (table_setup princ_table) (cleaned_dishes dishes1) (trash_pickup trashbin) (person_attended person1 livingroom) (robot_at kobuki entrance)))" (person_attended person1 livingroom)
@@ -200,8 +202,6 @@ public:
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_3 m_sh_1)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_3 m_sh_2)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_3 m_central)"));
-
-
   }
 
   void step()
@@ -226,15 +226,16 @@ public:
             action_CANCELLED.push_back(action_feedback);
           }
     }
-    for (const auto &action : action_NOT_EXECUTED) {
-      RCLCPP_INFO(get_logger(), "Action %s NOT_EXECUTED", action.action_full_name.c_str());
-    }
-    for (const auto &action : action_EXECUTING) {
-      RCLCPP_INFO(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
-    }
-    // for (const auto &action : action_FAILED) {
-    //   RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
+    // for (const auto &action : action_NOT_EXECUTED) {
+    //   RCLCPP_INFO(get_logger(), "Action %s NOT_EXECUTED", action.action_full_name.c_str());
     // }
+    // for (const auto &action : action_EXECUTING) {
+    //   RCLCPP_INFO(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
+    // }
+    for (auto &action : action_FAILED) {
+      RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
+      problem_checker_->restore_action(action);
+    }
     // for (const auto &action : action_SUCCEEDED) {
     //   RCLCPP_INFO(get_logger(), "Action %s SUCCEEDED", action.action_full_name.c_str());
     // }
@@ -262,7 +263,7 @@ public:
         exit(0);
       } else {
         RCLCPP_ERROR(get_logger(), "Plan finished with error");
-        init_knowledge();
+        // init_knowledge();
         auto domain = domain_expert_->getDomain();
         auto problem = problem_expert_->getProblem();
         auto plan = planner_client_->getPlan(domain, problem);
@@ -271,8 +272,11 @@ public:
             std::cout << "Could not find plan to reach goal " <<
               parser::pddl::toString(problem_expert_->getGoal()) << std::endl;
         }
-        //Muere el nodo move y los robots se quedan en localizacion desconocida a no 
-        // ser ue haga init_knowledge() pero el nodoo move sigue muriendo 
+        if (!executor_client_->start_plan_execution(plan.value())) {
+          RCLCPP_ERROR(get_logger(), "Error starting a new plan (first)");
+        }
+
+        // en principio se restaura todon los predicados de move y se encuentra plan 
         
       }
     }
