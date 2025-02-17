@@ -37,15 +37,28 @@ public:
         while (std::getline(file, line)) {
             if (line.find("( robot_at ") != std::string::npos ||
                 line.find("( box_at ") != std::string::npos ||
+                line.find("( loaded_box)") != std::string::npos ||
                 line.find("( idle_robot ") != std::string::npos ||
                 line.find("(= ( current_robot_load ") != std::string::npos){
 
                 std::istringstream iss(line);
                 std::vector<std::string> tokens{std::istream_iterator<std::string>{iss}, 
                                                 std::istream_iterator<std::string>{}};
-
+                
                 if (tokens.size() >= 3) {
-                    outFile << tokens[1] << " " << tokens[2] << std::endl; // Imprime $2 y $3
+                    if (tokens[1] == "box_at" || tokens[1] == "loaded_box") {
+                        for (size_t i = 1; i < tokens.size(); ++i) {
+                            if (tokens[i].find("_box") != std::string::npos) {
+                                outFile << tokens[i] << std::endl;  // Escribe el predicado con el parámetro que contiene "box"
+
+                                break;  // Solo imprimimos el primer parámetro que contiene "box"
+                            }
+                        }
+                    
+                    }
+                    else{
+                        outFile << tokens[1] << " " << tokens[2] << std::endl; // Imprime $2 y $3
+                    }
                 }
             }
             else if (line.find("( :goal") != std::string::npos) {
@@ -126,6 +139,22 @@ public:
             problem_expert_->addPredicate(plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
             
             // problem_expert_->addPredicate(plansys2::Predicate("(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")"));
+            problem_expert_->addPredicate(plansys2::Predicate("(box_at " + action.arguments[1] + " " + action.arguments[2] + ")"));
+            std::cout << "restoring functions" << std::endl;
+        }
+        if (action.action == "move"){
+            std::cout << "Restoring move" << std::endl;
+            std::cout << "restoring predicates" << std::endl;
+            std::cout << "(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")" << std::endl;
+            problem_expert_->addPredicate(plansys2::Predicate("(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")"));
+            std::cout << "restoring functions" << std::endl;
+        }
+        if (action.action == "unload_box"){
+            std::cout << "Restoring unload_box" << std::endl;
+            std::cout << "restoring predicates" << std::endl;
+            std::cout << "(iddle_robot " + action.arguments[0] + ")" << std::endl;
+            std::cout << "(box_at " + action.arguments[1] + " " + action.arguments[2] + ")" << std::endl;
+            problem_expert_->addPredicate(plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
             problem_expert_->addPredicate(plansys2::Predicate("(box_at " + action.arguments[1] + " " + action.arguments[2] + ")"));
             std::cout << "restoring functions" << std::endl;
         }

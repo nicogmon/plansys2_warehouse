@@ -17,7 +17,7 @@ public:
     Goal_reader()
     : Node("goal_reader"), count_(0)
     {
-      publisher_ = this->create_publisher<std_msgs::msg::String>("/Goal", 10);
+      publisher_ = this->create_publisher<std_msgs::msg::String>("/goal", 10);
       timer_ = this->create_wall_timer(500ms, std::bind(&Goal_reader::timer_callback, this));
     }
 

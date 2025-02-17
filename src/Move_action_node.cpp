@@ -76,12 +76,16 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 
     std::string robot = get_arguments()[0];
     RCLCPP_INFO(get_logger(), "Robot: %s", robot.c_str());
+    // specialized_arguments_ = get_arguments();
+    // RCLCPP_INFO(get_logger(), "Specialized arguments: %s", robot.c_str());
 
     navigation_action_client_ =
       rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
       shared_from_this(),
-      "/navigate_to_pose");//añadir el namspace del robot  que realiza la accion robot + "/navigate_to_pose" 
-                            //nav2_sim_node solo acepta en el generico opcion de hacer tres o que ese nodo lanze 3 servicios
+      "navigate_to_pose");//añadir el namspace del robot  que realiza la accion robot + "/navigate_to_pose" 
+                            //nav2_sim_node solo acepta en el generico opcion de hacer tres o que ese nodo lanze 3 serviciosç
+                            //investigar specialized arguments para que el nodo sepa que robot es el que realiza la accion
+                            //si quito barra y meto namespace ya es automatico
  
     bool is_action_server_ready = false;
     do {
@@ -116,15 +120,25 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
       };
 
     send_goal_options.result_callback = [this](auto) {
+        //poner running a false si ha terminado bien
+        //me llega si ha terminado bien o mal 
         finish(true, 1.0, "Move completed");
       };
 
     future_navigation_goal_handle_ =
       navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
-
+      //poner running a true
     return ActionExecutorClient::on_activate(previous_state);
   };
 
+//meter on deactivate para cancelar la accion de navegacion 
+// rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+//   Move::on_deactivate(const rclcpp_lifecycle::State & previous_state)
+//   {
+//     //comprobar si ha terminado mal con el flag running 
+//     //y enviar el cancel a navegacion
+//     return ActionExecutorClient::on_deactivate(previous_state);
+//   };
 
 double Move::getDistance(const geometry_msgs::msg::Pose & pos1, const geometry_msgs::msg::Pose & pos2)
   {

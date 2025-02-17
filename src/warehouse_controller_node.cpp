@@ -41,7 +41,7 @@ public:
   : rclcpp::Node("warehouse_controller")
   {
     goal_suscriber_ = this->create_subscription<std_msgs::msg::String>(
-      "/Goal", 10, std::bind(&WarehouseController::goal_callback, this, std::placeholders::_1));
+      "/goal", 10, std::bind(&WarehouseController::goal_callback, this, std::placeholders::_1));
     
 
 
@@ -239,9 +239,10 @@ public:
     // for (const auto &action : action_SUCCEEDED) {
     //   RCLCPP_INFO(get_logger(), "Action %s SUCCEEDED", action.action_full_name.c_str());
     // }
-    // for (const auto &action : action_CANCELLED) {
-    //   RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
-    // }
+    for (auto &action : action_CANCELLED) {
+      RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
+      problem_checker_->restore_action(action);
+    }
     std::cout << "\n\n" << std::endl;
     // estado 1 esperando, 2 ejectuando, 3 fallido, 4 exitoso, 5 cancelado
     
@@ -251,6 +252,7 @@ public:
 
     if (parser::pddl::toString(actual_goal) != goal_) {
       RCLCPP_INFO(get_logger(), "Goal changed");
+      //to-do 
     }
 
     problem_checker_->check_problem();
@@ -275,9 +277,7 @@ public:
         if (!executor_client_->start_plan_execution(plan.value())) {
           RCLCPP_ERROR(get_logger(), "Error starting a new plan (first)");
         }
-
         // en principio se restaura todon los predicados de move y se encuentra plan 
-        
       }
     }
   }
