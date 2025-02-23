@@ -236,26 +236,40 @@ public:
       RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
       problem_checker_->restore_action(action);
     }
-    // for (const auto &action : action_SUCCEEDED) {
-    //   RCLCPP_INFO(get_logger(), "Action %s SUCCEEDED", action.action_full_name.c_str());
-    // }
+    if (!action_FAILED.empty()){
+      RCLCPP_INFO(get_logger(), "Actions reverted after failure");
+      executor_client_->cancel_plan_execution();
+    }
+    feedback = executor_client_->getFeedBack();
+    action_CANCELLED.clear();
+    for (const auto &action_feedback : feedback.action_execution_status) {
+          if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
+            action_CANCELLED.push_back(action_feedback);
+          }
+    }
     for (auto &action : action_CANCELLED) {
       RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
-      problem_checker_->restore_action(action);
+      // problem_checker_->restore_action(action);
     }
-    std::cout << "\n\n" << std::endl;
+    // if (!action_CANCELLED.empty()){
+    //   RCLCPP_INFO(get_logger(), "Actions reverted after cancellation");
+    //   action_CANCELLED.clear();
+    //   // si se cancella move mandar stop a navigation server
+    // }
+    
     // estado 1 esperando, 2 ejectuando, 3 fallido, 4 exitoso, 5 cancelado
     
     plansys2::Goal actual_goal = problem_expert_->getGoal();
-    std::cout << "Goal actual: " << parser::pddl::toString(actual_goal) << std::endl;
-    std::cout << "Goal esperado: " << goal_ << std::endl;
+    // std::cout << "Goal actual: " << parser::pddl::toString(actual_goal) << std::endl;
+    // std::cout << "Goal esperado: " << goal_ << std::endl;
 
     if (parser::pddl::toString(actual_goal) != goal_) {
       RCLCPP_INFO(get_logger(), "Goal changed");
       //to-do 
     }
 
-    problem_checker_->check_problem();
+    bool problem_ok = problem_checker_->check_problem();
+
 
     if (!executor_client_->execute_and_check_plan()) {  // Plan finished
       auto result = executor_client_->getResult();

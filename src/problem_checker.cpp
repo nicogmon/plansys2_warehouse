@@ -46,14 +46,16 @@ public:
                                                 std::istream_iterator<std::string>{}};
                 
                 if (tokens.size() >= 3) {
+                    
                     if (tokens[1] == "box_at" || tokens[1] == "loaded_box") {
-                        for (size_t i = 1; i < tokens.size(); ++i) {
-                            if (tokens[i].find("_box") != std::string::npos) {
-                                outFile << tokens[i] << std::endl;  // Escribe el predicado con el parámetro que contiene "box"
+                        // for (size_t i = 1; i < tokens.size(); ++i) {
+                        //     if (tokens[i].find("_box") != std::string::npos) {
+                        //         outFile << tokens[i] << std::endl;  // Escribe el predicado con el parámetro que contiene "box"
 
-                                break;  // Solo imprimimos el primer parámetro que contiene "box"
-                            }
-                        }
+                        //         break;  // Solo imprimimos el primer parámetro que contiene "box"
+                        //     }
+                        // }
+                        outFile << tokens[2] << std::endl; // Imprime $2
                     
                     }
                     else{
@@ -70,17 +72,38 @@ public:
     }
         
 
-    void check_problem()
+    bool check_problem()
     {
         // Abre el archivo de salida en modo escritura (si no existe, se crea)
         std::ofstream outFile("predicates.txt");
 
         if (!outFile.is_open()) {
             std::cerr << "Error al abrir el archivo para escribir." << std::endl;
-            return;
+            return false;
         }
         predicates_ = problem_expert_->getPredicates();
-        outFile << "Predicates:" << std::endl;  // Escribe en el archivo
+        functions_ = problem_expert_->getFunctions();
+        outFile << "Functions:" << std::endl;  
+        for (const auto &function : functions_) {
+            for (int i = 0; i < function.parameters.size(); i++) {
+                if (i == 0) {
+                    outFile << "(" << function.name << " ";  
+                }
+                outFile << function.parameters[i].name;  
+
+                if (i < function.parameters.size() - 1) {
+                    outFile << " ";  // Espacio entre parámetros
+                }
+
+                if (i == function.parameters.size() - 1) {
+                    outFile <<" " <<  function.value << " )" << std::endl;  // Cierra el paréntesis y escribe en el archivo
+                   
+                }
+            }
+
+        }
+        outFile << std::endl;  
+        outFile << "Predicates:" << std::endl;  
 
         for (const auto &predicate : predicates_) {
             if(predicate.name == "connected" || predicate.name == "robot_zone" || predicate.name == "waypoint_from_zone"){
@@ -88,9 +111,9 @@ public:
             }
             for (int i = 0; i < predicate.parameters.size(); i++) {
                 if (i == 0) {
-                    outFile << "(" << predicate.name << " ";  // Escribe en el archivo
+                    outFile << "(" << predicate.name << " ";  
                 }
-                outFile << predicate.parameters[i].name;  // Escribe en el archivo
+                outFile << predicate.parameters[i].name;  
 
                 if (i < predicate.parameters.size() - 1) {
                     outFile << " ";  // Espacio entre parámetros
@@ -106,7 +129,7 @@ public:
         outFile.close();
 
         // Compara los predicados necesarios con los del archivo problem.pddl
-        check_necessary_predicates("neccesary_predicates.txt", "predicates.txt");
+        return check_necessary_predicates("neccesary_predicates.txt", "predicates.txt");
 
 
         // std::cout << "Predicates:" << std::endl;
@@ -158,18 +181,14 @@ public:
             problem_expert_->addPredicate(plansys2::Predicate("(box_at " + action.arguments[1] + " " + action.arguments[2] + ")"));
             std::cout << "restoring functions" << std::endl;
         }
-        // std::cout << "Duration: " << action->duration << std::endl;
-        // std::cout << "Completion: " << action->completion << std::endl;
-        // std::cout << "Message status: " << action->message_status << std::endl;
-        // std::cout << "Start stamp: " << action->start_stamp << std::endl;
-        // std::cout << "Status: " << action->status << std::endl;
-        // std::cout << "Status stamp: " << action->status_stamp << std::endl;
+
 
 
     }
 private:
     std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_;
     std::vector<plansys2::Predicate> predicates_;
+    std::vector<plansys2::Function> functions_;
 
     bool check_necessary_predicates(std::string input_file1, std::string input_file2){
         std::ifstream file1(input_file1);  // Primer archivo con "robot_at small_robot"
@@ -205,6 +224,7 @@ private:
 
             if (!found) {
                 std::cout << "No encontrado: " << str1 << std::endl;
+                return false;
             }
         }
 

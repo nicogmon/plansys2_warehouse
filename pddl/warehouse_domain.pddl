@@ -50,11 +50,14 @@
         (over all (robot_zone ?r ?z))
         (over all (waypoint_from_zone ?from ?z))
         (over all (waypoint_from_zone ?to ?z))
+        (at start (idle_robot ?r))
         ;idle_robot
         )
     :effect (and
         (at start (not(robot_at ?r ?from)))
+        (at start (not(idle_robot ?r)))
         (at end (robot_at ?r ?to))
+        (at end (idle_robot ?r))
     )
 )
 
