@@ -25,14 +25,21 @@ namespace plansys2_warehouse
 Move::Move()
 : plansys2::ActionExecutorClient("move", 1s)
 {
-  declare_parameter<std::vector<std::string>>("waypoints", std::vector<std::string>());
 
+    declare_parameter<std::vector<std::string>>("waypoints", std::vector<std::string>());
+    get_parameter_or("specialized_arguments", specialized_arguments_, std::vector<std::string>({""}));
+
+  
+    RCLCPP_INFO(get_logger(), "Move created");
+    auto esp_size = specialized_arguments_.size();
+    RCLCPP_INFO(get_logger(), "Specialized arguments size: %ld", esp_size);
+    RCLCPP_INFO(get_logger(), "Specialized argument: %s", specialized_arguments_[0].c_str());
     
     std::vector<std::string> wp_names;
     get_parameter_or("waypoints", wp_names, {});
     
     for (const auto & wp : wp_names) {
-      std::cout << "Waypoint: " << wp << std::endl;
+      // std::cout << "Waypoint: " << wp << std::endl;
       declare_parameter<std::vector<double>>("waypoint_coords." + wp);
       std::vector<double> coords;
       

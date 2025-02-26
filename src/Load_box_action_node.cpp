@@ -24,6 +24,15 @@ Load_box::Load_box()
 : plansys2::ActionExecutorClient("load_box", 1s)
 {
   counter_ = 0;
+  
+  get_parameter_or("specialized_arguments", specialized_arguments_, std::vector<std::string>({""}));
+
+  
+  RCLCPP_INFO(get_logger(), "Load_box created");
+  auto esp_size = specialized_arguments_.size();
+  RCLCPP_INFO(get_logger(), "Specialized arguments size: %ld", esp_size);
+  RCLCPP_INFO(get_logger(), "Specialized argument: %s", specialized_arguments_[0].c_str());
+  
 }
 
 

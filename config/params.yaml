@@ -1,7 +1,8 @@
-move:
+move_small_robot:
   ros__parameters:
     plugins:
       - move_node
+    specialized_arguments: ["small_robot", "", ""]
     waypoints: ["s_central", "s_sh_1", "s_sh_2", "s_sh_3", "m_central", "m_sh_1", "m_sh_2", "m_sh_3", "warehouse_2_sh", "common_zone"]
     waypoint_coords:
       s_central: [0.0, 4.0, 0.0]
@@ -15,54 +16,80 @@ move:
       warehouse_2_sh: [-1.0, -70.0, 0.0]
       common_zone: [0.0, -30.0, 0.0]
 
-# move_medium_robot:
-#   ros__parameters:
-#     plugins:
-#       - move_node
-#     # specialized_arguments: ["medium_robot", "", ""]
-#     waypoints: ["m_central", "m_sh_1", "m_sh_2", "m_sh_3", "warehouse_2_sh", "common_zone"]
-#     waypoint_coords:
-#       s_central: [0.0, 4.0, 0.0]
-#       s_sh_1: [-5.5, 4.0, 0.0]
-#       s_sh_2: [4.5, 4.0, 0.0]
-#       s_sh_3: [2.5, 14.0, 0.0]
-#       m_central: [-3.0, -12.0, 0.0]
-#       m_sh_1: [-8.0, -10.8, 0.0]
-#       m_sh_2: [-12.4, -11.6, 0.0]
-#       m_sh_3: [2.5, -12.1, 0.0]
-#       warehouse_2_sh: [-1.0, -70.0, 0.0]
-#       common_zone: [0.0, -30.0, 0.0]
+move_medium_robot:
+  ros__parameters:
+    plugins:
+      - move_node
+    specialized_arguments: ["medium_robot", "", ""]
+    waypoints: ["s_central", "s_sh_1", "s_sh_2", "s_sh_3", "m_central", "m_sh_1", "m_sh_2", "m_sh_3", "warehouse_2_sh", "common_zone"]
+    waypoint_coords:
+      s_central: [0.0, 4.0, 0.0]
+      s_sh_1: [-5.5, 4.0, 0.0]
+      s_sh_2: [4.5, 4.0, 0.0]
+      s_sh_3: [2.5, 14.0, 0.0]
+      m_central: [-3.0, -12.0, 0.0]
+      m_sh_1: [-8.0, -10.8, 0.0]
+      m_sh_2: [-12.4, -11.6, 0.0]
+      m_sh_3: [2.5, -12.1, 0.0]
+      warehouse_2_sh: [-1.0, -70.0, 0.0]
+      common_zone: [0.0, -30.0, 0.0]
 
-# move_big_robot:
-#   ros__parameters:
-#     plugins:
-#       - move_node
-#     # specialized_arguments: ["big_robot", "", ""]
-#     waypoints: ["b_central", "b_sh_1", "b_sh_2", "b_sh_3", "warehouse_2_sh", "common_zone"]
-#     waypoint_coords:
-#       s_central: [0.0, 4.0, 0.0]
-#       s_sh_1: [-5.5, 4.0, 0.0]
-#       s_sh_2: [4.5, 4.0, 0.0]
-#       s_sh_3: [2.5, 14.0, 0.0]
-#       m_central: [-3.0, -12.0, 0.0]
-#       m_sh_1: [-8.0, -10.8, 0.0]
-#       m_sh_2: [-12.4, -11.6, 0.0]
-#       m_sh_3: [2.5, -12.1, 0.0]
-#       warehouse_2_sh: [-1.0, -70.0, 0.0]
-#       common_zone: [0.0, -30.0, 0.0]
+move_big_robot:
+  ros__parameters:
+    plugins:
+      - move_node
+    specialized_arguments: ["big_robot", "", ""]
+    waypoints: ["s_central", "s_sh_1", "s_sh_2", "s_sh_3", "m_central", "m_sh_1", "m_sh_2", "m_sh_3", "warehouse_2_sh", "common_zone"]
+    waypoint_coords:
+      s_central: [0.0, 4.0, 0.0]
+      s_sh_1: [-5.5, 4.0, 0.0]
+      s_sh_2: [4.5, 4.0, 0.0]
+      s_sh_3: [2.5, 14.0, 0.0]
+      m_central: [-3.0, -12.0, 0.0]
+      m_sh_1: [-8.0, -10.8, 0.0]
+      m_sh_2: [-12.4, -11.6, 0.0]
+      m_sh_3: [2.5, -12.1, 0.0]
+      warehouse_2_sh: [-1.0, -70.0, 0.0]
+      common_zone: [0.0, -30.0, 0.0]
 
-# definir 3 move y 3 nodos en el launch file
 
-load_box:
+load_box_small_robot:
   ros__parameters:
     plugins:
       - load_node
+    specialized_arguments: ["small_robot", "", "", ""]
+
+load_box_medium_robot:
+  ros__parameters:
+    plugins:
+      - load_node
+    specialized_arguments: ["medium_robot", "", "", ""]
+
+load_box_big_robot:
+  ros__parameters:
+    plugins:
+      - load_node
+    specialized_arguments: ["big_robot", "", "", ""]
 
 
-unload_box:
+unload_box_small_robot:
   ros__parameters:
     plugins:
       - unload_node
+    specialized_arguments: ["small_robot", "", "", ""]
+
+unload_box_medium_robot:
+  ros__parameters:
+    plugins:
+      - unload_node
+    specialized_arguments: ["medium_robot", "", "", ""]
+
+unload_box_big_robot:
+  ros__parameters:
+    plugins:
+      - unload_node
+    specialized_arguments: ["big_robot", "", "", ""]
+
 
 
 

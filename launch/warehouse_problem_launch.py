@@ -49,7 +49,7 @@ def generate_launch_description():
     ld.add_action(plansys2_cmd)
 
     
-    robot_names = ["small_robot", "med_robot", "big_robot"]
+    robot_names = ["small_robot", "medium_robot", "big_robot"]
     move_nodes = {} 
     load_nodes = {}
     unload_nodes = {}
@@ -58,7 +58,7 @@ def generate_launch_description():
         move_nodes[f"move_node_{robot_name}"] = Node(
             package='plansys2_warehouse',
             executable='move_node',
-            name=f"move{i}",
+            name=f"move_{robot_name}",
             namespace='',#preguntar a fran por el namesapce igual esto nos ayuda a la hora de que lo acccepte el action executor correcto
             output='screen',
             parameters=[
@@ -73,18 +73,25 @@ def generate_launch_description():
         load_nodes[f"load_node_{robot_name}"] = Node(
             package='plansys2_warehouse',
             executable='load_node',
-            name=f"load_box{i}",
+            name=f"load_box_{robot_name}",
             namespace='',
             output='screen',
-            parameters=[])
+            parameters=[
+                example_dir + '/config/params.yaml',
+                {
+                    'action_name': f"load_box_{robot_name}",
+                }])
         
         unload_nodes[f"unload_node_{robot_name}"] = Node(
             package='plansys2_warehouse',
             executable='unload_node',
-            name=f"unload_box{i}",
+            name=f"unload_box_{robot_name}",
             namespace='',
             output='screen',
-            parameters=[])
+            parameters=[example_dir + '/config/params.yaml',
+                {
+                    'action_name': f"unload_box_{robot_name}",
+                }])
         
 
         ld.add_action(move_nodes[f"move_node_{robot_name}"])

@@ -28,6 +28,13 @@ Unload_box::Unload_box()
 : plansys2::ActionExecutorClient("unload_box", 1s)
 {
   counter_ = 0;
+  get_parameter_or("specialized_arguments", specialized_arguments_, std::vector<std::string>({""}));
+
+  
+  RCLCPP_INFO(get_logger(), "Unload_box created");
+  auto esp_size = specialized_arguments_.size();
+  RCLCPP_INFO(get_logger(), "Specialized arguments size: %ld", esp_size);
+  RCLCPP_INFO(get_logger(), "Specialized argument: %s", specialized_arguments_[0].c_str());
 }
 
 
