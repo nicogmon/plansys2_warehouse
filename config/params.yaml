@@ -2,7 +2,7 @@ move_small_robot:
   ros__parameters:
     plugins:
       - move_node
-    specialized_arguments: ["small_robot", "", ""]
+    specialized_arguments: ["small_robot", "", "", ""]
     waypoints: ["s_central", "s_sh_1", "s_sh_2", "s_sh_3", "m_central", "m_sh_1", "m_sh_2", "m_sh_3", "warehouse_2_sh", "common_zone"]
     waypoint_coords:
       s_central: [0.0, 4.0, 0.0]
@@ -20,7 +20,7 @@ move_medium_robot:
   ros__parameters:
     plugins:
       - move_node
-    specialized_arguments: ["medium_robot", "", ""]
+    specialized_arguments: ["medium_robot", "", "", ""]
     waypoints: ["s_central", "s_sh_1", "s_sh_2", "s_sh_3", "m_central", "m_sh_1", "m_sh_2", "m_sh_3", "warehouse_2_sh", "common_zone"]
     waypoint_coords:
       s_central: [0.0, 4.0, 0.0]
@@ -38,7 +38,7 @@ move_big_robot:
   ros__parameters:
     plugins:
       - move_node
-    specialized_arguments: ["big_robot", "", ""]
+    specialized_arguments: ["big_robot", "", "", ""]
     waypoints: ["s_central", "s_sh_1", "s_sh_2", "s_sh_3", "m_central", "m_sh_1", "m_sh_2", "m_sh_3", "warehouse_2_sh", "common_zone"]
     waypoint_coords:
       s_central: [0.0, 4.0, 0.0]

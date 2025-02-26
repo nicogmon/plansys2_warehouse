@@ -249,7 +249,7 @@ public:
     }
     for (auto &action : action_CANCELLED) {
       RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
-      // problem_checker_->restore_action(action);
+      problem_checker_->restore_action(action);
     }
     // if (!action_CANCELLED.empty()){
     //   RCLCPP_INFO(get_logger(), "Actions reverted after cancellation");

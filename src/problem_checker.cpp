@@ -170,6 +170,7 @@ public:
             std::cout << "restoring predicates" << std::endl;
             std::cout << "(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")" << std::endl;
             problem_expert_->addPredicate(plansys2::Predicate("(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")"));
+            problem_expert_->addPredicate(plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
             std::cout << "restoring functions" << std::endl;
         }
         if (action.action == "unload_box"){
