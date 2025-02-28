@@ -15,7 +15,8 @@ move_small_robot:
       m_sh_3: [2.5, -12.1, 0.0]
       warehouse_2_sh: [-1.0, -70.0, 0.0]
       common_zone: [0.0, -30.0, 0.0]
-
+#si pongo namesape al nodo tambien tengo que poner namespace aqui small_robot:/n/tabmove_small_robot:
+#no funciona con el namespace en nav2 sim
 move_medium_robot:
   ros__parameters:
     plugins:

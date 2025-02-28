@@ -59,7 +59,7 @@ def generate_launch_description():
             package='plansys2_warehouse',
             executable='move_node',
             name=f"move_{robot_name}",
-            namespace='',#preguntar a fran por el namesapce igual esto nos ayuda a la hora de que lo acccepte el action executor correcto
+            namespace='',#f"{robot_name}",#preguntar a fran por el namesapce igual esto nos ayuda a la hora de que lo acccepte el action executor correcto
             output='screen',
             parameters=[
                 example_dir + '/config/params.yaml',

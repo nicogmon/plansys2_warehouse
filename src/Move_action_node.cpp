@@ -85,14 +85,17 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     RCLCPP_INFO(get_logger(), "Robot: %s", robot.c_str());
     // specialized_arguments_ = get_arguments();
     // RCLCPP_INFO(get_logger(), "Specialized arguments: %s", robot.c_str());
+    std::string service_name = robot + "/navigate_to_pose";
+    RCLCPP_INFO(get_logger(), "Service: %s", service_name.c_str());
 
     navigation_action_client_ =
       rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
       shared_from_this(),
-      "navigate_to_pose");//añadir el namspace del robot  que realiza la accion robot + "/navigate_to_pose" 
+      service_name);//añadir el namspace del robot  que realiza la accion robot + "/navigate_to_pose" 
                             //nav2_sim_node solo acepta en el generico opcion de hacer tres o que ese nodo lanze 3 serviciosç
                             //investigar specialized arguments para que el nodo sepa que robot es el que realiza la accion
                             //si quito barra y meto namespace ya es automatico
+    
  
     bool is_action_server_ready = false;
     do {

@@ -41,7 +41,7 @@ Unload_box::Unload_box()
 
 void Unload_box::do_work()
 {
-  std::cout << "Unload_box tick " << counter_ << std::endl;
+  RCLCPP_INFO(get_logger(), "Unload_box tick %d", counter_);
   
   counter_++;
 

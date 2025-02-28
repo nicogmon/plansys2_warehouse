@@ -67,6 +67,7 @@ private:
 
   void execute(const std::shared_ptr<GoalHandleNavigateToPose> goal_handle)
   {
+    std::string node_namespace = this->get_namespace();
     rclcpp::Rate loop_rate(1);
     auto feedback = std::make_shared<NavigateToPose::Feedback>();
     auto result = std::make_shared<NavigateToPose::Result>();
@@ -82,7 +83,7 @@ private:
     auto start = now();
     int current_times = 0;
     while (rclcpp::ok() && current_times++ < 10) {
-      RCLCPP_INFO(this->get_logger(), "Navigating %d ", current_times);
+      RCLCPP_INFO(this->get_logger(), "%s navigating %d ", node_namespace.c_str(),current_times);
 
       if (goal_handle->is_canceling()) {
         goal_handle->canceled(result);

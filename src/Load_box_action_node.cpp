@@ -40,11 +40,12 @@ Load_box::Load_box()
 void Load_box::do_work()
 {
  
-  std::cout << "Load_box tick " << counter_ << std::endl;
+  
+  RCLCPP_INFO(get_logger(), "Load_box tick %d", counter_);
   
   counter_++;
   if (rand() % 1 == 0 && fail_flag_) {
-    std::cout << "Load_box failed" << std::endl;
+    RCLCPP_ERROR(get_logger(), "Load_box failed");
     fail_flag_ = false;
     finish(false, counter_ / 5, "Load_box failed");
   }
