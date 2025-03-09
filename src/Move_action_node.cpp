@@ -127,11 +127,27 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         send_feedback(
           std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
           "Move running");
+        
       };
 
-    send_goal_options.result_callback = [this](auto) {
+    send_goal_options.result_callback = [this](auto result) {
+       // Verifica si el resultado es válido
+        std::cout << "Goal result received" << std::endl;
+        std::cout << "Status: " << static_cast<int>(result.code) << std::endl;  // Imprime el estado de la acción
         //poner running a false si ha terminado bien
         //me llega si ha terminado bien o mal 
+        //comprobar aqui si llega o que, si no llegara arriba
+        //donde llegue mandar async_cancel_goal
+        if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+          std::cout << "Navigation succeeded!" << std::endl;
+      } else if (result.code == rclcpp_action::ResultCode::ABORTED) {
+          std::cout << "Navigation was aborted!" << std::endl;
+      } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
+          std::cout << "Navigation was canceled!" << std::endl;
+      } else {
+          std::cout << "Unknown result code!" << std::endl;
+      }
+        //wait o get para comprobar confirmacion de cancel 
         finish(true, 1.0, "Move completed");
       };
 

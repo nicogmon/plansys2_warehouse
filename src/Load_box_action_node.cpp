@@ -49,6 +49,21 @@ void Load_box::do_work()
     fail_flag_ = false;
     finish(false, counter_ / 5, "Load_box failed");
   }
+  auto status = this->get_internal_status();
+
+  RCLCPP_INFO(get_logger(), "Load_box %d", status.state);
+
+  // if (status == BT::NodeStatus::IDLE) {  
+  //   std::cout << "Move action was canceled!" << std::endl;
+  //   finish(false, 0.0, "Move action canceled");
+  //   return;
+  // }
+
+  // if (status == BT::NodeStatus::FAILURE) {
+  //   std::cout << "Move action encountered an error!" << std::endl;
+  //   finish(false, 0.0, "Move action failed");
+  //   return;
+  // }
   if (counter_ < 5) {
     send_feedback(counter_, "Load running");
 

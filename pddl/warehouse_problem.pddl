@@ -72,6 +72,16 @@
         (connected common_zone m_central)
         (connected common_zone warehouse_2_sh)
 
+        (= (distance_s common_zone s_sh_1 ) 110)
+        (= (distance_s common_zone s_sh_2 ) 110)
+        (= (distance_s common_zone s_sh_3 ) 120)
+        (= (distance_s common_zone s_central ) 100)
+        (= (distance_s common_zone m_sh_1 ) 55)
+        (= (distance_s common_zone m_sh_2 ) 60)
+        (= (distance_s common_zone m_sh_3 ) 52)
+        (= (distance_s common_zone m_central ) 55)
+        (= (distance_s common_zone warehouse_2_sh ) 80)
+
         (connected s_sh_1 common_zone)
         (connected s_sh_2 common_zone)
         (connected s_sh_3 common_zone)
@@ -81,6 +91,16 @@
         (connected m_sh_3 common_zone)
         (connected m_central common_zone)
         (connected warehouse_2_sh common_zone)
+
+        (= (distance_s s_sh_1 common_zone ) 110)
+        (= (distance_s s_sh_2 common_zone ) 110)
+        (= (distance_s s_sh_3 common_zone ) 120)
+        (= (distance_s s_central common_zone ) 100)
+        (= (distance_s m_sh_1 common_zone ) 55)
+        (= (distance_s m_sh_2 common_zone ) 60)
+        (= (distance_s m_sh_3 common_zone ) 52)
+        (= (distance_s m_central common_zone ) 55)
+        (= (distance_s warehouse_2_sh common_zone ) 80)
 
 
         (connected s_sh_1 s_sh_2)
@@ -92,6 +112,24 @@
         (connected s_sh_3 s_sh_1)
         (connected s_sh_3 s_sh_2)
         (connected s_sh_3 s_central)
+        (connected S_central s_sh_1)
+        (connected S_central s_sh_2)
+        (connected S_central s_sh_3)
+
+
+        (= (distance_s s_sh_1 s_sh_2 ) 25)
+        (= (distance_s s_sh_1 s_sh_3 ) 30)
+        (= (distance_s s_sh_1 s_central ) 12)
+        (= (distance_s s_sh_2 s_sh_1 ) 25)
+        (= (distance_s s_sh_2 s_sh_3 ) 32)
+        (= (distance_s s_sh_2 s_central ) 12)
+        (= (distance_s s_sh_3 s_sh_1 ) 30)
+        (= (distance_s s_sh_3 s_sh_2 ) 32)
+        (= (distance_s s_sh_3 s_central ) 25)
+        (= (distance_s s_central s_sh_1 ) 12)
+        (= (distance_s s_central s_sh_2 ) 12)
+        (= (distance_s s_central s_sh_3 ) 25)
+
 
         (connected m_sh_1 m_sh_2)
         (connected m_sh_1 m_sh_3)
@@ -103,6 +141,20 @@
         (connected m_sh_3 m_sh_2)
         (connected m_sh_3 m_central)
 
+        (= (distance_s m_sh_1 m_sh_2 ) 50)
+        (= (distance_s m_sh_1 m_sh_3 ) 65)
+        (= (distance_s m_sh_1 m_central ) 45)
+        (= (distance_s m_sh_2 m_sh_1 ) 50)
+        (= (distance_s m_sh_2 m_sh_3 ) 90)
+        (= (distance_s m_sh_2 m_central ) 55)
+        (= (distance_s m_sh_3 m_sh_1 ) 65)
+        (= (distance_s m_sh_3 m_sh_2 ) 90)
+        (= (distance_s m_sh_3 m_central ) 46)
+        (= (distance_s m_central m_sh_1 ) 45)
+        (= (distance_s m_central m_sh_2 ) 55)
+        (= (distance_s m_central m_sh_3 ) 46)
+
+        
 
 
     )

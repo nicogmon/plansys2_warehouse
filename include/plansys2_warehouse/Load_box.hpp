@@ -7,6 +7,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
+#include "behaviortree_cpp_v3/basic_types.h"
 
 namespace plansys2_warehouse
 {

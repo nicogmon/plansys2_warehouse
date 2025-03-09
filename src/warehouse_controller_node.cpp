@@ -192,6 +192,9 @@ public:
     problem_expert_->addPredicate(plansys2::Predicate("(connected s_sh_3 s_sh_1)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected s_sh_3 s_sh_2)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected s_sh_3 s_central)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected s_central s_sh_1)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected s_central s_sh_2)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected s_central s_sh_3)"));
 
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_1 m_sh_2)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_1 m_sh_3)"));
@@ -202,6 +205,59 @@ public:
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_3 m_sh_1)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_3 m_sh_2)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_3 m_central)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected m_central m_sh_1)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected m_central m_sh_2)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected m_central m_sh_3)"));
+
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone s_sh_1) 110)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone s_sh_2) 110)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone s_sh_3) 120)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone s_central) 100)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone m_sh_1) 55)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone m_sh_2) 60)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone m_sh_3) 52)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone m_central) 55)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s common_zone warehouse_2_sh) 80)"));
+    
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_1 common_zone) 110)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_2 common_zone) 110)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_3 common_zone) 120)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_central common_zone) 100)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_1 common_zone) 55)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_2 common_zone) 60)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_3 common_zone) 52)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_central common_zone) 55)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s warehouse_2_sh common_zone) 80)"));
+    
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_1 s_sh_2) 25)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_1 s_sh_3) 30)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_1 s_central) 12)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_2 s_sh_1) 25)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_2 s_sh_3) 32)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_2 s_central) 12)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_3 s_sh_1) 30)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_3 s_sh_2) 32)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_3 s_central) 25)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_central s_sh_1) 12)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_central s_sh_2) 12)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s s_central s_sh_3) 25)"));
+    
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_1 m_sh_2) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_1 m_sh_3) 65)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_1 m_central) 45)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_2 m_sh_1) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_2 m_sh_3) 90)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_2 m_central) 55)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_3 m_sh_1) 65)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_3 m_sh_2) 90)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_3 m_central) 46)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_central m_sh_1) 45)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_central m_sh_2) 55)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s m_central m_sh_3) 46)"));
+    
+
+
+
   }
 
   void step()
@@ -279,14 +335,21 @@ public:
         exit(0);
       } else {
         RCLCPP_ERROR(get_logger(), "Plan finished with error");
-        // init_knowledge();
         auto domain = domain_expert_->getDomain();
         auto problem = problem_expert_->getProblem();
+        bool problem_ok = problem_checker_->check_problem();
+        if (problem_ok) {
+          RCLCPP_INFO(get_logger(), "Problem OK");
+        } else {
+          RCLCPP_ERROR(get_logger(), "Problem NOT OK");
+        }
         auto plan = planner_client_->getPlan(domain, problem);
 
         if (!plan.has_value()) {
             std::cout << "Could not find plan to reach goal " <<
               parser::pddl::toString(problem_expert_->getGoal()) << std::endl;
+              
+              exit(0);
         }
         if (!executor_client_->start_plan_execution(plan.value())) {
           RCLCPP_ERROR(get_logger(), "Error starting a new plan (first)");

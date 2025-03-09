@@ -85,6 +85,9 @@ public:
         functions_ = problem_expert_->getFunctions();
         outFile << "Functions:" << std::endl;  
         for (const auto &function : functions_) {
+            if (function.name == "distance_s" ) {
+                continue;
+            }
             for (int i = 0; i < function.parameters.size(); i++) {
                 if (i == 0) {
                     outFile << "(" << function.name << " ";  
@@ -169,6 +172,7 @@ public:
             std::cout << "Restoring move" << std::endl;
             std::cout << "restoring predicates" << std::endl;
             std::cout << "(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")" << std::endl;
+            std::cout << "(idle_robot " + action.arguments[0] + ")" << std::endl;
             problem_expert_->addPredicate(plansys2::Predicate("(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")"));
             problem_expert_->addPredicate(plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
             std::cout << "restoring functions" << std::endl;
@@ -177,9 +181,9 @@ public:
             std::cout << "Restoring unload_box" << std::endl;
             std::cout << "restoring predicates" << std::endl;
             std::cout << "(iddle_robot " + action.arguments[0] + ")" << std::endl;
-            std::cout << "(box_at " + action.arguments[1] + " " + action.arguments[2] + ")" << std::endl;
+            std::cout << "(loaded_box " +action.arguments[1] + " " + action.arguments[0] +")" << std::endl;
             problem_expert_->addPredicate(plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
-            problem_expert_->addPredicate(plansys2::Predicate("(box_at " + action.arguments[1] + " " + action.arguments[2] + ")"));
+            problem_expert_->addPredicate(plansys2::Predicate("(loaded_box " + action.arguments[1] + " " + action.arguments[0] +")"));
             std::cout << "restoring functions" << std::endl;
         }
 

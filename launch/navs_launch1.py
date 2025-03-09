@@ -50,8 +50,8 @@ def generate_launch_description():
             example_dir + '/config/params.yaml']
         )
     ld.add_action(nav2sim_cmd1)
-    ld.add_action(nav2sim_cmd2)
-    ld.add_action(nav2sim_cmd3)
+    # ld.add_action(nav2sim_cmd2)
+    # ld.add_action(nav2sim_cmd3)
 
     ld.add_action(declare_namespace_cmd)
     

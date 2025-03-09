@@ -29,6 +29,7 @@
 (:functions
     (robot_capacity ?r -robot)
     (current_robot_load ?r -robot)
+    (distance_s ?w1 - waypoint ?w2 - waypoint)
     ; (boxes_in_shelve ?sw - shelve_waypoint)
     ; (shelve_capacity ?sw - shelve_waypoint)
 
@@ -43,7 +44,7 @@
 
 (:durative-action move
     :parameters (?r - robot ?from - waypoint ?to - waypoint ?z - zone)
-    :duration ( = ?duration 10)
+    :duration ( = ?duration (distance_s ?from ?to))
     :condition (and
         (at start (robot_at ?r ?from))
         (over all (connected ?from ?to))
@@ -74,6 +75,7 @@
         (box_at ?b ?sw)
         ))  
         (over all (and 
+        (waypoint_from_zone ?sw ?z)
         
         ;;(shelve_at ?sw ?z)
         (robot_at ?r ?sw)
