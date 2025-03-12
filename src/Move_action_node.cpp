@@ -68,12 +68,36 @@ Move::Move()
     using namespace std::placeholders;
     pos_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
       "/amcl_pose", 10, std::bind(&Move::current_pos_callback, this, _1));
+
+    cancel_sub_ = create_subscription<std_msgs::msg::String>(
+      "/cancel", 10, std::bind(&Move::cancel_callback, this, _1));
   }
 
 
 void Move::current_pos_callback(
     const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg) {
   current_pos_ = msg->pose.pose;
+};
+
+void Move::cancel_callback(const std_msgs::msg::String::SharedPtr msg) {
+  RCLCPP_INFO(get_logger(), "Cancel received");
+  if (future_navigation_goal_handle_.valid()) {
+    // Obtener el goal_handle de manera segura
+    auto goal_handle = future_navigation_goal_handle_.get();
+    
+    if (goal_handle) {
+        // Verificar si el estado de la acción es válido antes de cancelarla
+        auto status = goal_handle->get_status();
+        
+        // Comprobar que la acción está en ejecución antes de cancelarla
+        if (status == action_msgs::msg::GoalStatus::STATUS_EXECUTING ||
+            status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED) {
+            RCLCPP_INFO(get_logger(), "Canceling goal...");
+            navigation_action_client_->async_cancel_goal(goal_handle);
+        }
+    }
+  }
+  
 };
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -144,6 +168,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
           std::cout << "Navigation was aborted!" << std::endl;
       } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
           std::cout << "Navigation was canceled!" << std::endl;
+
       } else {
           std::cout << "Unknown result code!" << std::endl;
       }
@@ -176,6 +201,20 @@ double Move::getDistance(const geometry_msgs::msg::Pose & pos1, const geometry_m
 
 void Move::do_work()
 {
+  
+  // if (ActionExecutorClient::should_cancel_goal()) {
+  //   RCLCPP_WARN(get_logger(), "Move action was canceled!");
+    
+  //   // if (future_navigation_goal_handle_.valid()) {
+  //   //     auto goal_handle = future_navigation_goal_handle_.get();
+  //   //     if (goal_handle) {
+  //   //         navigation_action_client_->async_cancel_goal(goal_handle);
+  //   //     }
+  //   // }
+
+  //   finish(false, 0.0, "Move action canceled");
+  //   return;
+
 }
 }
 // namespace plansys2_house_problem

@@ -42,7 +42,8 @@ public:
   {
     goal_suscriber_ = this->create_subscription<std_msgs::msg::String>(
       "/goal", 10, std::bind(&WarehouseController::goal_callback, this, std::placeholders::_1));
-    
+    cancel_publisher_ = this->create_publisher<std_msgs::msg::String>("/cancel", 10);
+
 
 
   }
@@ -263,11 +264,16 @@ public:
   void step()
   {
     auto feedback = executor_client_->getFeedBack();
+    
+    
+
+
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_NOT_EXECUTED;
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_FAILED;
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_SUCCEEDED;
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
+
 
     for (const auto &action_feedback : feedback.action_execution_status) {
           if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::NOT_EXECUTED) {
@@ -285,9 +291,10 @@ public:
     // for (const auto &action : action_NOT_EXECUTED) {
     //   RCLCPP_INFO(get_logger(), "Action %s NOT_EXECUTED", action.action_full_name.c_str());
     // }
-    // for (const auto &action : action_EXECUTING) {
-    //   RCLCPP_INFO(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
-    // }
+    RCLCPP_INFO(get_logger(), "ACTIONS STATTEEEEE ");
+    for (const auto &action : action_EXECUTING) {
+      RCLCPP_INFO(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
+    }
     for (auto &action : action_FAILED) {
       RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
       problem_checker_->restore_action(action);
@@ -307,6 +314,30 @@ public:
       RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
       problem_checker_->restore_action(action);
     }
+    std::cout << "\n\n";
+
+    plansys2::Goal actual_goal = problem_expert_->getGoal();
+    // std::cout << "Goal actual: " << parser::pddl::toString(actual_goal) << std::endl;
+    // std::cout << "Goal esperado: " << goal_ << std::endl;
+
+    if (parser::pddl::toString(actual_goal) != goal_) {
+      RCLCPP_INFO(get_logger(), "Goal changed");
+      //to-do 
+      // cancelar plan actual
+      executor_client_->cancel_plan_execution();
+      auto cancel_msg = std_msgs::msg::String();
+      cancel_msg.data = "plan_cancelled";
+      cancel_publisher_->publish(cancel_msg);
+      
+      
+      problem_expert_->setGoal(plansys2::Goal(goal_));
+      RCLCPP_INFO(get_logger(), "Goal set successfully: %s", goal_.c_str());
+      for (auto &action : action_EXECUTING) {
+        problem_checker_->restore_action(action);
+      }
+    }
+
+    
     // if (!action_CANCELLED.empty()){
     //   RCLCPP_INFO(get_logger(), "Actions reverted after cancellation");
     //   action_CANCELLED.clear();
@@ -315,16 +346,8 @@ public:
     
     // estado 1 esperando, 2 ejectuando, 3 fallido, 4 exitoso, 5 cancelado
     
-    plansys2::Goal actual_goal = problem_expert_->getGoal();
-    // std::cout << "Goal actual: " << parser::pddl::toString(actual_goal) << std::endl;
-    // std::cout << "Goal esperado: " << goal_ << std::endl;
-
-    if (parser::pddl::toString(actual_goal) != goal_) {
-      RCLCPP_INFO(get_logger(), "Goal changed");
-      //to-do 
-    }
-
-    bool problem_ok = problem_checker_->check_problem();
+    
+    
 
 
     if (!executor_client_->execute_and_check_plan()) {  // Plan finished
@@ -366,6 +389,7 @@ private:
   // StateType state_;
   // std::string planet;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr goal_suscriber_;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr cancel_publisher_;
   std::shared_ptr<ProblemChecker> problem_checker_;
   // std::string goal_;
 
