@@ -171,9 +171,9 @@ public:
         if (action.action == "move"){
             std::cout << "Restoring move" << std::endl;
             std::cout << "restoring predicates" << std::endl;
-            std::cout << "(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")" << std::endl;
+            std::cout << "(robot_at " + action.arguments[0] + " unknown_point"  + ")" << std::endl;
             std::cout << "(idle_robot " + action.arguments[0] + ")" << std::endl;
-            problem_expert_->addPredicate(plansys2::Predicate("(robot_at " + action.arguments[0] + " " + action.arguments[1] + ")"));
+            problem_expert_->addPredicate(plansys2::Predicate("(robot_at " + action.arguments[0] + " unknown_point" + ")"));
             problem_expert_->addPredicate(plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
             std::cout << "restoring functions" << std::endl;
         }

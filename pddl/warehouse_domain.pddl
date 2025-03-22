@@ -1,5 +1,5 @@
 (define (domain warehouse_domain)
-(:requirements :strips :typing :durative-actions :fluents :equality)
+(:requirements :strips :typing :durative-actions :fluents :equality :negative-preconditions)
 
 ; Types
 (:types
@@ -34,7 +34,9 @@
     ; (shelve_capacity ?sw - shelve_waypoint)
 
 )
-
+(:constants
+    unknown_point - waypoint
+)
 
 ;posible mejora accion para el robot grande que obligue a que haya un mimimos de cajas en la zona de intercambio
 ; Actions
@@ -76,6 +78,7 @@
         ))  
         (over all (and 
         (waypoint_from_zone ?sw ?z)
+        (not (= ?sw unknown_point))
         
         ;;(shelve_at ?sw ?z)
         (robot_at ?r ?sw)
@@ -110,6 +113,7 @@
         ))
         (over all (and 
         (robot_at ?r ?sw)
+        (not (= ?sw unknown_point))
         ;;(shelve_at ?sw ?z)
         ))
     )

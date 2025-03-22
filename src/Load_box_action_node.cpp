@@ -44,11 +44,12 @@ void Load_box::do_work()
   RCLCPP_INFO(get_logger(), "Load_box tick %d", counter_);
   
   counter_++;
-  if (rand() % 1 == 0 && fail_flag_) {
-    RCLCPP_ERROR(get_logger(), "Load_box failed");
-    fail_flag_ = false;
-    finish(false, counter_ / 5, "Load_box failed");
-  }
+  // if (rand() % 1 == 0 && fail_flag_) {
+  //   RCLCPP_ERROR(get_logger(), "Load_box failed");
+  //   fail_flag_ = false;
+  //   counter_ = 0;
+  //   finish(false, counter_ / 5, "Load_box failed");
+  // }
   auto status = this->get_internal_status();
 
   RCLCPP_INFO(get_logger(), "Load_box %d", status.state);
@@ -73,6 +74,7 @@ void Load_box::do_work()
                                           //para indicar fallo a mitad de ejecucion
   }
 }
+//on deactivate para acbar y resetao contador 
 
 // namespace plansys2_house_problem
 } 

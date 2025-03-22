@@ -46,6 +46,9 @@ public:
         msg.data = f_goal;
         publisher_->publish(msg);
 
+        //cerrar fichero
+        file.close();
+
     }
   
   private:

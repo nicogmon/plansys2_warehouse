@@ -111,6 +111,7 @@ public:
     problem_expert_->addInstance(plansys2::Instance{"m_sh_3", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"warehouse_2_sh", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"common_zone", "waypoint"});
+    problem_expert_->addInstance(plansys2::Instance{"unknown_point", "waypoint"});
 
     problem_expert_->addInstance(plansys2::Instance{"s_box_1", "box"});
     problem_expert_->addInstance(plansys2::Instance{"s_box_2", "box"});
@@ -119,9 +120,7 @@ public:
     problem_expert_->addInstance(plansys2::Instance{"m_box_2", "box"});
     problem_expert_->addInstance(plansys2::Instance{"m_box_3", "box"});
     
-
-    
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_at small_robot s_central)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_at small_robot unknown_point)"));
     problem_expert_->addPredicate(plansys2::Predicate("(robot_zone small_robot small_zone)"));
     problem_expert_->addPredicate(plansys2::Predicate("(idle_robot small_robot)"));
     problem_expert_->addFunction(plansys2::Function("(= (robot_capacity small_robot) 1)"));
@@ -164,6 +163,10 @@ public:
     problem_expert_->addPredicate(plansys2::Predicate("(waypoint_from_zone common_zone small_zone)"));
     problem_expert_->addPredicate(plansys2::Predicate("(waypoint_from_zone common_zone medium_zone)"));
 
+    problem_expert_->addPredicate(plansys2::Predicate("(waypoint_from_zone unknown_point inter_zone)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(waypoint_from_zone unknown_point small_zone)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(waypoint_from_zone unknown_point medium_zone)"));
+
     problem_expert_->addPredicate(plansys2::Predicate("(connected common_zone s_sh_1)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected common_zone s_sh_2)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected common_zone s_sh_3)"));
@@ -183,6 +186,17 @@ public:
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_sh_3 common_zone)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected m_central common_zone)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected warehouse_2_sh common_zone)"));
+
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point s_sh_1)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point s_sh_2)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point s_sh_3)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point s_central)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point m_sh_1)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point m_sh_2)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point m_sh_3)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point m_central)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point warehouse_2_sh)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(connected unknown_point common_zone)"));
 
     problem_expert_->addPredicate(plansys2::Predicate("(connected s_sh_1 s_sh_2)"));
     problem_expert_->addPredicate(plansys2::Predicate("(connected s_sh_1 s_sh_3)"));
@@ -229,6 +243,17 @@ public:
     problem_expert_->addFunction(plansys2::Function("(= (distance_s m_sh_3 common_zone) 52)"));
     problem_expert_->addFunction(plansys2::Function("(= (distance_s m_central common_zone) 55)"));
     problem_expert_->addFunction(plansys2::Function("(= (distance_s warehouse_2_sh common_zone) 80)"));
+
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point s_sh_1) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point s_sh_2) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point s_sh_3) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point s_central) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point m_sh_1) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point m_sh_2) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point m_sh_3) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point m_central) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point warehouse_2_sh) 50)"));
+    problem_expert_->addFunction(plansys2::Function("(= (distance_s unknown_point common_zone) 50)"));
     
     problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_1 s_sh_2) 25)"));
     problem_expert_->addFunction(plansys2::Function("(= (distance_s s_sh_1 s_sh_3) 30)"));
@@ -325,9 +350,45 @@ public:
       //to-do 
       // cancelar plan actual
       executor_client_->cancel_plan_execution();
+      // esperar y mirar a ver si sale cancelada con while o hacer maquina estado simple.
+      //   rate.sleep();
+      // rclcpp::spin_some(node->get_node_base_interface());
+
+
+      rclcpp::Rate rate(10);  // 10 Hz, es decir, 100 ms por iteración
+      int counter = 0;
+      
+
+      while (rclcpp::ok() && counter < 70) { // máximo 5 iteraciones -> 500 ms
+        auto status = executor_client_->getResult();
+  
+        rclcpp::spin_some(get_node_base_interface());
+        rate.sleep();
+        counter++;
+        RCLCPP_INFO(get_logger(),"%d",counter);
+      }
       auto cancel_msg = std_msgs::msg::String();
       cancel_msg.data = "plan_cancelled";
       cancel_publisher_->publish(cancel_msg);
+      auto feedback2 = executor_client_->getFeedBack();
+      action_EXECUTING.clear();
+      action_CANCELLED.clear();
+      action_FAILED.clear();
+      for (const auto &action_feedback : feedback2.action_execution_status) {
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
+              RCLCPP_ERROR(get_logger(), "Action %s CANCELLED tras goal", action_feedback.action_full_name.c_str());
+              action_CANCELLED.push_back(action_feedback);
+            }
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::FAILED) {
+              RCLCPP_ERROR(get_logger(), "Action %s FAILED tras goal", action_feedback.action_full_name.c_str());
+              action_FAILED.push_back(action_feedback);
+            }
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::EXECUTING) {
+              RCLCPP_ERROR(get_logger(), "Action %s EXECUTING tras goal", action_feedback.action_full_name.c_str());
+              action_EXECUTING.push_back(action_feedback);
+            }
+      }
+    
       
       
       problem_expert_->setGoal(plansys2::Goal(goal_));
@@ -357,6 +418,7 @@ public:
         RCLCPP_INFO(get_logger(), "Plan succesfully finished");
         exit(0);
       } else {
+        // exit(1);
         RCLCPP_ERROR(get_logger(), "Plan finished with error");
         auto domain = domain_expert_->getDomain();
         auto problem = problem_expert_->getProblem();

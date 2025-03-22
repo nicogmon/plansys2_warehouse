@@ -47,18 +47,20 @@ void Unload_box::do_work()
 
   // if (rand() % 1 == 0) {
   //   std::cout << "Unload_box failed" << std::endl;
+  //   counter_ = 0;
   //   finish(false, counter / 5, "Unload_box failed");
   // }
   if (counter_ < 5) {
-    send_feedback(counter_, "Patrol running");
+    send_feedback(counter_, "Unload running");
 
   } else {
     counter_ = 0;
-    finish(true, 1.0, "Patrol completed");//segundo parametro nos puede servir
+    finish(true, 1.0, "Unload completed");//segundo parametro nos puede servir
                                           //para indicar fallo a mitad de ejecucion
                                           // y el rpimero indicar que ha fallado la accion
   }
 }
+
 
 } // namespace plansys2_house_problem
 

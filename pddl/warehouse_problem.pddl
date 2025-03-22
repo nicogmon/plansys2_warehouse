@@ -10,6 +10,7 @@
         m_central m_sh_1 m_sh_2 m_sh_3 -waypoint
         warehouse_2_sh -waypoint
         common_zone -waypoint
+        
 
         
         s_box_1 s_box_2 s_box_3 -box
@@ -18,7 +19,7 @@
     )
     
     (:init
-        (robot_at small_robot s_sh_1)
+        (robot_at small_robot unknown_point)
         (robot_zone small_robot small_zone)
         (idle_robot small_robot)
         (= (robot_capacity small_robot) 1)
@@ -57,9 +58,13 @@
 
         (waypoint_from_zone warehouse_2_sh inter_zone)
 
-        (waypoint_from_zone common_zone inter_zone)
         (waypoint_from_zone common_zone small_zone)
         (waypoint_from_zone common_zone medium_zone)
+        (waypoint_from_zone common_zone inter_zone)
+        
+        (waypoint_from_zone unknown_point small_zone)
+        (waypoint_from_zone unknown_point medium_zone)
+        (waypoint_from_zone unknown_point inter_zone)
 
 
         (connected common_zone s_sh_1)
@@ -71,6 +76,7 @@
         (connected common_zone m_sh_3)
         (connected common_zone m_central)
         (connected common_zone warehouse_2_sh)
+        (connected common_zone unknown_point)
 
         (= (distance_s common_zone s_sh_1 ) 110)
         (= (distance_s common_zone s_sh_2 ) 110)
@@ -101,6 +107,29 @@
         (= (distance_s m_sh_3 common_zone ) 52)
         (= (distance_s m_central common_zone ) 55)
         (= (distance_s warehouse_2_sh common_zone ) 80)
+
+        (connected unknown_point s_sh_1)
+        (connected unknown_point s_sh_2)
+        (connected unknown_point s_sh_3)
+        (connected unknown_point s_central)
+        (connected unknown_point m_sh_1)
+        (connected unknown_point m_sh_2)
+        (connected unknown_point m_sh_3)
+        (connected unknown_point m_central)
+        (connected unknown_point warehouse_2_sh)
+        (connected unknown_point common_zone)
+
+        (= (distance_s unknown_point s_sh_1 ) 50)
+        (= (distance_s unknown_point s_sh_2 ) 50)
+        (= (distance_s unknown_point s_sh_3 ) 50)
+        (= (distance_s unknown_point s_central ) 50)
+        (= (distance_s unknown_point m_sh_1 ) 50)
+        (= (distance_s unknown_point m_sh_2 ) 50)
+        (= (distance_s unknown_point m_sh_3 ) 50)
+        (= (distance_s unknown_point m_central ) 50)
+        (= (distance_s unknown_point warehouse_2_sh ) 50)
+        (= (distance_s unknown_point common_zone ) 50)
+
 
 
         (connected s_sh_1 s_sh_2)

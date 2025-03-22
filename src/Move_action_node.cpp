@@ -81,22 +81,22 @@ void Move::current_pos_callback(
 
 void Move::cancel_callback(const std_msgs::msg::String::SharedPtr msg) {
   RCLCPP_INFO(get_logger(), "Cancel received");
-  if (future_navigation_goal_handle_.valid()) {
-    // Obtener el goal_handle de manera segura
-    auto goal_handle = future_navigation_goal_handle_.get();
+  // if (future_navigation_goal_handle_.valid()) {
+  //   // Obtener el goal_handle de manera segura
+  //   auto goal_handle = future_navigation_goal_handle_.get();
     
-    if (goal_handle) {
-        // Verificar si el estado de la acción es válido antes de cancelarla
-        auto status = goal_handle->get_status();
+  //   if (goal_handle) {
+  //       // Verificar si el estado de la acción es válido antes de cancelarla
+  //       auto status = goal_handle->get_status();
         
-        // Comprobar que la acción está en ejecución antes de cancelarla
-        if (status == action_msgs::msg::GoalStatus::STATUS_EXECUTING ||
-            status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED) {
-            RCLCPP_INFO(get_logger(), "Canceling goal...");
-            navigation_action_client_->async_cancel_goal(goal_handle);
-        }
-    }
-  }
+  //       // Comprobar que la acción está en ejecución antes de cancelarla
+  //       if (status == action_msgs::msg::GoalStatus::STATUS_EXECUTING ||
+  //           status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED) {
+  //           RCLCPP_INFO(get_logger(), "Canceling goal...");
+  //           navigation_action_client_->async_cancel_goal(goal_handle);
+  //       }
+  //   }
+  // }
   
 };
 
@@ -183,13 +183,53 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   };
 
 //meter on deactivate para cancelar la accion de navegacion 
-// rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-//   Move::on_deactivate(const rclcpp_lifecycle::State & previous_state)
-//   {
-//     //comprobar si ha terminado mal con el flag running 
-//     //y enviar el cancel a navegacion
-//     return ActionExecutorClient::on_deactivate(previous_state);
-//   };
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  Move::on_deactivate(const rclcpp_lifecycle::State & previous_state)
+  {
+    //comprobar si ha terminado mal con el flag running 
+    //y enviar el cancel a navegacion
+
+  RCLCPP_INFO(get_logger(), "Deactivate received");
+  if (future_navigation_goal_handle_.valid()) {
+    // Obtener el goal_handle de manera segura
+    auto goal_handle = future_navigation_goal_handle_.get();
+    
+    if (goal_handle) {
+        // Verificar si el estado de la acción es válido antes de cancelarla
+        auto status = goal_handle->get_status();
+        
+        switch (status) {
+          case action_msgs::msg::GoalStatus::STATUS_EXECUTING:
+          case action_msgs::msg::GoalStatus::STATUS_ACCEPTED:
+            RCLCPP_INFO(get_logger(), "Goal is running, cancelling...");
+            navigation_action_client_->async_cancel_goal(goal_handle);
+            finish(false, 0.0, "Move canceled");
+            break;
+    
+          case action_msgs::msg::GoalStatus::STATUS_SUCCEEDED:
+            RCLCPP_INFO(get_logger(), "Goal succeeded");
+            break;
+    
+          case action_msgs::msg::GoalStatus::STATUS_ABORTED:
+            RCLCPP_WARN(get_logger(), "Goal aborted!");
+            break;
+    
+          case action_msgs::msg::GoalStatus::STATUS_CANCELED:
+            RCLCPP_INFO(get_logger(), "Goal was already canceled");
+            break;
+    
+          case action_msgs::msg::GoalStatus::STATUS_CANCELING:
+            RCLCPP_INFO(get_logger(), "Goal is being canceled");
+            break;
+    
+          default:
+            RCLCPP_INFO(get_logger(), "Unknown goal status");
+            break;
+        }
+      }
+    }
+    return ActionExecutorClient::on_deactivate(previous_state);
+  };
 
 double Move::getDistance(const geometry_msgs::msg::Pose & pos1, const geometry_msgs::msg::Pose & pos2)
   {
