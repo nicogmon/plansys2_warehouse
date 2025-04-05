@@ -284,6 +284,11 @@ public:
 
   void step()
   {
+    if (goal_changed_){
+    RCLCPP_INFO(get_logger(), "WAITING FOR GOAL CHANGE");
+      handleGoalChange();
+      return;
+    }
     auto feedback = executor_client_->getFeedBack();
     
     
@@ -340,7 +345,7 @@ public:
 
     plansys2::Goal actual_goal = problem_expert_->getGoal();
 
-    if (parser::pddl::toString(actual_goal) != goal_) {
+    if (parser::pddl::toString(actual_goal) != goal_ || goal_changed_) {
       handleGoalChange();
     }
    
@@ -383,6 +388,7 @@ private:
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr cancel_publisher_;
   std::shared_ptr<ProblemChecker> problem_checker_;
   std::string goal_;
+  bool goal_changed_ = false;
   // std::string goal_;
 
   std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
@@ -393,85 +399,78 @@ private:
 
   void handleGoalChange()
   {
+    if (!goal_changed_) {
+      goal_changed_ = true;
       RCLCPP_INFO(get_logger(), "Goal changed");
       // cancelar plan actual
       RCLCPP_ERROR(get_logger(), "Cancelling plan");
       if (!executor_client_) {
         RCLCPP_ERROR(get_logger(), "executor_client_ is NULL in handleGoalChange!");
         return;
-    }
+      }
       executor_client_->cancel_plan_execution();
       // esperar y mirar a ver si sale cancelada con while o hacer maquina estado simple.
       RCLCPP_ERROR(get_logger(), "Plan cancelled");
-      rclcpp::Rate rate(5); 
-      int counter = 0;
+    
       std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
       std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_FAILED;
       std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
-      int break_flag = 0;
-      while (rclcpp::ok() && break_flag == 0) { 
-        auto status = executor_client_->getResult();
-        
-        // if (!status.has_value()) {
-        //   RCLCPP_ERROR(get_logger(), "Status is NULL");
-        //   break;
-        // }
-        // if (status.value().success) {
-        //   RCLCPP_INFO(get_logger(), "Plan succesfully finished");
-        // } else {
-        //   RCLCPP_ERROR(get_logger(), "Plan finished with error");
-        //   break;
-        // }
-
-  
-        rclcpp::spin_some(get_node_base_interface());
-        rate.sleep();
-        counter++;
-        RCLCPP_INFO(get_logger(),"%d",counter);
-        auto feedback2 = executor_client_->getFeedBack();
+       
+      auto status = executor_client_->getResult();
       
-        
-        for (const auto &action_feedback : feedback2.action_execution_status) {
-              if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
-                action_CANCELLED.push_back(action_feedback);
-              }
-              if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::FAILED) {
-                action_FAILED.push_back(action_feedback);
-              }
-              if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::EXECUTING) {
-                action_EXECUTING.push_back(action_feedback);
-              }
-        }
+      // if (!status.has_value()) {
+      //   RCLCPP_ERROR(get_logger(), "Status is NULL");
+      //   break;
+      // }
+      // if (status.value().success) {
+      //   RCLCPP_INFO(get_logger(), "Plan succesfully finished");
+      // } else {
+      //   RCLCPP_ERROR(get_logger(), "Plan finished with error");
+      //   break;
+      // }
 
-        if (!action_CANCELLED.empty()){
-          RCLCPP_INFO(get_logger(), "Actions CANCELLED after goal change");
-          for (auto &action : action_CANCELLED) {
-              RCLCPP_ERROR(get_logger(), "Action %s CANCELLED tras goal", action.action_full_name.c_str()); 
-          }
-          action_CANCELLED.clear();
-          break_flag = 1;
-        }
-        if (!action_FAILED.empty()){
-          RCLCPP_INFO(get_logger(), "Actions FAILED after goal change");
-          for (auto &action : action_FAILED) {
-              RCLCPP_ERROR(get_logger(), "Action %s FAILED tras goal", action.action_full_name.c_str()); 
-          }
-          action_FAILED.clear();
-        }
-        if (!action_EXECUTING.empty()){
-          RCLCPP_INFO(get_logger(), "Actions EXECUTING after goal change");
-          for (auto &action : action_EXECUTING) {
-              RCLCPP_ERROR(get_logger(), "Action %s EXECUTING tras goal", action.action_full_name.c_str()); 
-          }
-          action_EXECUTING.clear();
-        }
-        action_CANCELLED.clear();
-        action_FAILED.clear();
-        action_EXECUTING.clear();
-        // JAMAS SE CANCELAN LAS ACCIONES, SIEMPRE SE QUEDAN EN EXECUTING
 
+      auto feedback2 = executor_client_->getFeedBack();
+    
+      
+      for (const auto &action_feedback : feedback2.action_execution_status) {
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
+              action_CANCELLED.push_back(action_feedback);
+            }
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::FAILED) {
+              action_FAILED.push_back(action_feedback);
+            }
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::EXECUTING) {
+              action_EXECUTING.push_back(action_feedback);
+            }
       }
 
+      if (!action_CANCELLED.empty()){
+        RCLCPP_INFO(get_logger(), "Actions CANCELLED after goal change");
+        for (auto &action : action_CANCELLED) {
+            RCLCPP_ERROR(get_logger(), "Action %s CANCELLED tras goal", action.action_full_name.c_str()); 
+        }
+        action_CANCELLED.clear();
+      }
+      if (!action_FAILED.empty()){
+        RCLCPP_INFO(get_logger(), "Actions FAILED after goal change");
+        for (auto &action : action_FAILED) {
+            RCLCPP_ERROR(get_logger(), "Action %s FAILED tras goal", action.action_full_name.c_str()); 
+        }
+        action_FAILED.clear();
+      }
+      if (!action_EXECUTING.empty()){
+        RCLCPP_INFO(get_logger(), "Actions EXECUTING after goal change");
+        for (auto &action : action_EXECUTING) {
+            RCLCPP_ERROR(get_logger(), "Action %s EXECUTING tras goal", action.action_full_name.c_str()); 
+        }
+        action_EXECUTING.clear();
+      }
+      action_CANCELLED.clear();
+      action_FAILED.clear();
+      action_EXECUTING.clear();
+      // JAMAS SE CANCELAN LAS ACCIONES, SIEMPRE SE QUEDAN EN EXECUTING
+    
       auto cancel_msg = std_msgs::msg::String();
       cancel_msg.data = "plan_cancelled";
       cancel_publisher_->publish(cancel_msg);
@@ -482,8 +481,55 @@ private:
       for (auto &action : action_EXECUTING) {
         problem_checker_->restore_action(action);
       }
-  }
+    } else {
+      std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
+      std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_FAILED;
+      std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
+       
+      auto status = executor_client_->getResult();
+      auto feedback2 = executor_client_->getFeedBack();
     
+      
+      for (const auto &action_feedback : feedback2.action_execution_status) {
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
+              action_CANCELLED.push_back(action_feedback);
+            }
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::FAILED) {
+              action_FAILED.push_back(action_feedback);
+            }
+            if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::EXECUTING) {
+              action_EXECUTING.push_back(action_feedback);
+            }
+      }
+      RCLCPP_INFO(get_logger(), "ACTIONS STATTEEEEE ");
+      if (!action_CANCELLED.empty()){
+        RCLCPP_INFO(get_logger(), "Actions CANCELLED after goal change");
+        for (auto &action : action_CANCELLED) {
+            RCLCPP_ERROR(get_logger(), "Action %s CANCELLED tras goal", action.action_full_name.c_str()); 
+        }
+        action_CANCELLED.clear();
+      }
+      if (!action_FAILED.empty()){
+        RCLCPP_INFO(get_logger(), "Actions FAILED after goal change");
+        for (auto &action : action_FAILED) {
+            RCLCPP_ERROR(get_logger(), "Action %s FAILED tras goal", action.action_full_name.c_str()); 
+        }
+        action_FAILED.clear();
+      }
+      if (!action_EXECUTING.empty()){
+        RCLCPP_INFO(get_logger(), "Actions EXECUTING after goal change");
+        for (auto &action : action_EXECUTING) {
+            RCLCPP_ERROR(get_logger(), "Action %s EXECUTING tras goal", action.action_full_name.c_str()); 
+        }
+        action_EXECUTING.clear();
+      }
+      action_CANCELLED.clear();
+      action_FAILED.clear();
+      action_EXECUTING.clear();
+    }
+    return;
+  }
+  
     
   
 };

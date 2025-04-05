@@ -115,7 +115,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     navigation_action_client_ =
       rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
       shared_from_this(),
-      service_name);//añadir el namspace del robot  que realiza la accion robot + "/navigate_to_pose" 
+      service_name);//añadir el namespace del robot  que realiza la accion robot + "/navigate_to_pose" 
                             //nav2_sim_node solo acepta en el generico opcion de hacer tres o que ese nodo lanze 3 serviciosç
                             //investigar specialized arguments para que el nodo sepa que robot es el que realiza la accion
                             //si quito barra y meto namespace ya es automatico
@@ -254,7 +254,6 @@ void Move::do_work()
 
   //   finish(false, 0.0, "Move action canceled");
   //   return;
-
 }
 }
 // namespace plansys2_house_problem
