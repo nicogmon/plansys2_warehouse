@@ -17,9 +17,9 @@ class Unload_box : public plansys2::ActionExecutorClient
 {
 public:
   Unload_box();
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state);
 
 private:
-
   void do_work() override;
   int counter_;
 };

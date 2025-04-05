@@ -61,9 +61,15 @@ void Unload_box::do_work()
   }
 }
 
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+Unload_box::on_deactivate(const rclcpp_lifecycle::State & previous_state)
+{
+  RCLCPP_INFO(get_logger(), "Unload_box deactivated");
+  counter_ = 0;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
 
-} // namespace plansys2_house_problem
-
+}
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);

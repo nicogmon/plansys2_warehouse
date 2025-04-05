@@ -25,11 +25,11 @@ public:
         std::ifstream file("/tmp/problem.pddl");
         std::ofstream outFile("neccesary_predicates.txt");
         if (!file.is_open()) {
-            std::cerr << "Error: No se pudo abrir el archivo problem.pddl" << std::endl;
+            std::cerr << "Error: File problem.pddl can't be opened" << std::endl;
             return;
         }
         if (!outFile.is_open()) {
-            std::cerr << "Error al abrir el archivo para escribir." << std::endl;
+            std::cerr << "Error opening neccesary_predicates." << std::endl;
             return;
         }
 
@@ -46,20 +46,11 @@ public:
                                                 std::istream_iterator<std::string>{}};
                 
                 if (tokens.size() >= 3) {
-                    
                     if (tokens[1] == "box_at" || tokens[1] == "loaded_box") {
-                        // for (size_t i = 1; i < tokens.size(); ++i) {
-                        //     if (tokens[i].find("_box") != std::string::npos) {
-                        //         outFile << tokens[i] << std::endl;  // Escribe el predicado con el parámetro que contiene "box"
-
-                        //         break;  // Solo imprimimos el primer parámetro que contiene "box"
-                        //     }
-                        // }
-                        outFile << tokens[2] << std::endl; // Imprime $2
-                    
+                        outFile << tokens[2] << std::endl;
                     }
                     else{
-                        outFile << tokens[1] << " " << tokens[2] << std::endl; // Imprime $2 y $3
+                        outFile << tokens[1] << " " << tokens[2] << std::endl;
                     }
                 }
             }
@@ -74,11 +65,10 @@ public:
 
     bool check_problem()
     {
-        // Abre el archivo de salida en modo escritura (si no existe, se crea)
         std::ofstream outFile("predicates.txt");
 
         if (!outFile.is_open()) {
-            std::cerr << "Error al abrir el archivo para escribir." << std::endl;
+            std::cerr << "Error opening predicates file for writing." << std::endl;
             return false;
         }
         predicates_ = problem_expert_->getPredicates();
@@ -95,12 +85,11 @@ public:
                 outFile << function.parameters[i].name;  
 
                 if (i < function.parameters.size() - 1) {
-                    outFile << " ";  // Espacio entre parámetros
+                    outFile << " "; 
                 }
 
                 if (i == function.parameters.size() - 1) {
-                    outFile <<" " <<  function.value << " )" << std::endl;  // Cierra el paréntesis y escribe en el archivo
-                   
+                    outFile <<" " <<  function.value << " )" << std::endl;
                 }
             }
 
@@ -119,37 +108,19 @@ public:
                 outFile << predicate.parameters[i].name;  
 
                 if (i < predicate.parameters.size() - 1) {
-                    outFile << " ";  // Espacio entre parámetros
+                    outFile << " ";
                 }
 
                 if (i == predicate.parameters.size() - 1) {
-                    outFile << ")" << std::endl;  // Cierra el paréntesis y escribe en el archivo
+                    outFile << ")" << std::endl;
                 }
             }
         }
-        // tenemos la misma info en /tmp/problem pddl con goal y el resto de predicados.
-        // Cierra el archivo
+
         outFile.close();
 
-        // Compara los predicados necesarios con los del archivo problem.pddl
         return check_necessary_predicates("neccesary_predicates.txt", "predicates.txt");
 
-
-        // std::cout << "Predicates:" << std::endl;
-        // for (const auto &predicate : predicates_) {
-        //     for (int i = 0; i < predicate.parameters.size(); i++) {
-        //         if (i == 0) {
-        //             std::cout << "(" << predicate.name << " ";
-        //         }
-        //         std::cout << predicate.parameters[i].name;
-        //         if (i < predicate.parameters.size() - 1) {
-        //             std::cout << " " ;
-        //         }
-        //         if (i == predicate.parameters.size() - 1) {
-        //             std::cout << ")" << std::endl;
-        //         }
-        //     }
-        // }
     }
 
     void restore_action(plansys2_msgs::msg::ActionExecutionInfo& action){
@@ -196,39 +167,35 @@ private:
     std::vector<plansys2::Function> functions_;
 
     bool check_necessary_predicates(std::string input_file1, std::string input_file2){
-        std::ifstream file1(input_file1);  // Primer archivo con "robot_at small_robot"
-        std::ifstream file2(input_file2);  // Segundo archivo con "Predicates: (idle_robot small_robot)"
-        
+        std::ifstream file1(input_file1);
+        std::ifstream file2(input_file2);
         if (!file1 || !file2) {
-            std::cerr << "Error abriendo los archivos" << std::endl;
+            std::cerr << "Error opening files" << std::endl;
             return false;
         }
 
         std::vector<std::string> lines1, lines2;
         std::string line;
 
-        // Leer todas las líneas del primer archivo en un vector
         while (std::getline(file1, line)) {
             lines1.push_back(line);
         }
 
-        // Leer todas las líneas del segundo archivo en otro vector
         while (std::getline(file2, line)) {
             lines2.push_back(line);
         }
 
-        // Comprobar si cada línea del primer archivo está contenida en alguna del segundo archivo
         for (const std::string& str1 : lines1) {
             bool found = false;
             for (const std::string& str2 : lines2) {
-                if (str2.find(str1) != std::string::npos) {  // str1 está contenido en str2
+                if (str2.find(str1) != std::string::npos) {
                     found = true;
                     break;
                 }
             }
 
             if (!found) {
-                std::cout << "No encontrado: " << str1 << std::endl;
+                std::cout << "Not found: " << str1 << std::endl;
                 return false;
             }
         }

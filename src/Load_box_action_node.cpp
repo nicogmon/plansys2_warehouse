@@ -76,8 +76,18 @@ void Load_box::do_work()
 }
 //on deactivate para acbar y resetao contador 
 
-// namespace plansys2_house_problem
-} 
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+Load_box::on_deactivate(const rclcpp_lifecycle::State & previous_state)
+{
+  RCLCPP_INFO(get_logger(), "Load_box deactivated");
+  counter_ = 0;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+
+
+} // namespace plansys2_house_problem
+
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
