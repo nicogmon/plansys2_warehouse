@@ -24,6 +24,7 @@ private:
   
   int counter_;
   bool fail_flag_ = true;
+  bool action_cancelled_ = false;
 };
 
 }  // namespace plansys2_warehouse
