@@ -384,7 +384,6 @@ private:
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr cancel_publisher_;
   std::shared_ptr<ProblemChecker> problem_checker_;
   std::string goal_;
-  // std::string goal_;
 
   std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
   std::shared_ptr<plansys2::PlannerClient> planner_client_;
@@ -453,20 +452,15 @@ private:
         action_EXECUTING.clear();
         
       }
-      
       // JAMAS SE CANCELAN LAS ACCIONES, SIEMPRE SE QUEDAN EN EXECUTING
     
       auto cancel_msg = std_msgs::msg::String();
       cancel_msg.data = "plan_cancelled";
       cancel_publisher_->publish(cancel_msg);
-      
     
       problem_expert_->setGoal(plansys2::Goal(goal_));
       RCLCPP_INFO(get_logger(), "Goal set successfully: %s", goal_.c_str());
-    
-      
-      
-    
+
     return;
   }
   

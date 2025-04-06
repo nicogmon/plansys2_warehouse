@@ -66,7 +66,8 @@ Unload_box::on_deactivate(const rclcpp_lifecycle::State & previous_state)
 {
   RCLCPP_INFO(get_logger(), "Unload_box deactivated");
   counter_ = 0;
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  finish(true, 1.0, "Unload_box deactivated");
+  return ActionExecutorClient::on_deactivate(previous_state);
 }
 
 }

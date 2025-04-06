@@ -53,6 +53,11 @@ void Load_box::do_work()
   auto status = this->get_internal_status();
 
   RCLCPP_INFO(get_logger(), "Load_box %d", status.state);
+  if (status.state == 3 || status.state == 4) {
+    RCLCPP_ERROR(get_logger(), "Load_box failed or cancelled");
+    action_cancelled_ = true;
+    
+  }
 
   // if (status == BT::NodeStatus::IDLE) {  
   //   std::cout << "Move action was canceled!" << std::endl;
@@ -79,9 +84,20 @@ void Load_box::do_work()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 Load_box::on_deactivate(const rclcpp_lifecycle::State & previous_state)
 {
-  RCLCPP_INFO(get_logger(), "Load_box deactivated");
-  counter_ = 0;
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  if (action_cancelled_) {
+    RCLCPP_ERROR(get_logger(), "Load_box cancelled if");
+    action_cancelled_ = false;
+    counter_ = 0;
+    finish(false, 1.0, "Load_box deactivated");
+    return ActionExecutorClient::on_deactivate(previous_state);
+  }
+  else{
+    RCLCPP_INFO(get_logger(), "Load_box deactivated else");
+    counter_ = 0;
+    finish(true, 1.0, "Load_box deactivated");
+    return ActionExecutorClient::on_deactivate(previous_state);
+  }
+  
 }
 
 
