@@ -32,6 +32,7 @@
 #include <chrono>
 #include "std_msgs/msg/string.hpp"
 #include "problem_checker.cpp"
+#include "add_robot.cpp"
 
 
 class WarehouseController : public rclcpp::Node
@@ -58,6 +59,7 @@ public:
       RCLCPP_INFO(get_logger(), "Goal not received yet");
       return 0;
     }
+    RCLCPP_INFO(get_logger(), "HOLAAAAAA");
     domain_expert_ = std::make_shared<plansys2::DomainExpertClient>();
     planner_client_ = std::make_shared<plansys2::PlannerClient>();
     problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
@@ -65,7 +67,10 @@ public:
     init_knowledge();
     problem_checker_ = std::make_shared<ProblemChecker>(problem_expert_);
     problem_checker_->get_necesary_predicates();
-   
+    // POSIBLE MEJORA NO MUY COMPLICADA DE IMPLEMENTAR//////////////////////////
+    add_robot_ = std::make_shared<AddRobot>(problem_expert_); // crear suscripcion que al publicarse en un topic llame a este metodo
+    // se puede meter en una funcion abajo 
+    ////////////////////////////////////////////////////////////////////////////
     problem_expert_->setGoal(plansys2::Goal(goal_));
     RCLCPP_INFO(get_logger(), "Goal set successfully: %s", goal_.c_str());
 
@@ -83,15 +88,16 @@ public:
     if (!executor_client_->start_plan_execution(plan.value())) {
       RCLCPP_ERROR(get_logger(), "Error starting a new plan (first)");
     }
+    
     return 1;
   }
 
   void init_knowledge()
   {
     
-    problem_expert_->addInstance(plansys2::Instance{"small_robot", "robot"});
-    problem_expert_->addInstance(plansys2::Instance{"medium_robot", "robot"});
-    problem_expert_->addInstance(plansys2::Instance{"big_robot", "robot"});
+    problem_expert_->addInstance(plansys2::Instance{"small_robot_1", "robot"});
+    problem_expert_->addInstance(plansys2::Instance{"medium_robot_1", "robot"});
+    problem_expert_->addInstance(plansys2::Instance{"big_robot_1", "robot"});
 
     problem_expert_->addInstance(plansys2::Instance{"small_zone", "zone"});
     problem_expert_->addInstance(plansys2::Instance{"medium_zone", "zone"});
@@ -116,24 +122,24 @@ public:
     problem_expert_->addInstance(plansys2::Instance{"m_box_2", "box"});
     problem_expert_->addInstance(plansys2::Instance{"m_box_3", "box"});
     
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_at small_robot unknown_point)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_zone small_robot small_zone)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(idle_robot small_robot)"));
-    problem_expert_->addFunction(plansys2::Function("(= (robot_capacity small_robot) 1)"));
-    problem_expert_->addFunction(plansys2::Function("(= (current_robot_load small_robot) 0)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_at small_robot_1 unknown_point)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_zone small_robot_1 small_zone)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(idle_robot small_robot_1)"));
+    problem_expert_->addFunction(plansys2::Function("(= (robot_capacity small_robot_1) 1)"));
+    problem_expert_->addFunction(plansys2::Function("(= (current_robot_load small_robot_1) 0)"));
 
 
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_at medium_robot m_central)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_zone medium_robot medium_zone)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(idle_robot medium_robot)"));
-    problem_expert_->addFunction(plansys2::Function("(= (robot_capacity medium_robot) 3)"));
-    problem_expert_->addFunction(plansys2::Function("(= (current_robot_load medium_robot) 0)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_at medium_robot_1 m_central)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_zone medium_robot_1 medium_zone)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(idle_robot medium_robot_1)"));
+    problem_expert_->addFunction(plansys2::Function("(= (robot_capacity medium_robot_1) 3)"));
+    problem_expert_->addFunction(plansys2::Function("(= (current_robot_load medium_robot_1) 0)"));
 
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_at big_robot warehouse_2_sh)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_zone big_robot inter_zone)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(idle_robot big_robot)"));
-    problem_expert_->addFunction(plansys2::Function("(= (robot_capacity big_robot) 5)"));
-    problem_expert_->addFunction(plansys2::Function("(= (current_robot_load big_robot) 0)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_at big_robot_1 warehouse_2_sh)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(robot_zone big_robot_1 inter_zone)"));
+    problem_expert_->addPredicate(plansys2::Predicate("(idle_robot big_robot_1)"));
+    problem_expert_->addFunction(plansys2::Function("(= (robot_capacity big_robot_1) 5)"));
+    problem_expert_->addFunction(plansys2::Function("(= (current_robot_load big_robot_1) 0)"));
 
     problem_expert_->addPredicate(plansys2::Predicate("(box_at s_box_1 s_sh_1)"));
     problem_expert_->addPredicate(plansys2::Predicate("(box_at s_box_2 s_sh_2)"));
@@ -344,6 +350,22 @@ public:
       handleGoalChange();
       RCLCPP_INFO(get_logger(), "Goal changed");
     }
+
+    if (dead_flag_ && rand() % 3 == 0  ) {
+      RCLCPP_ERROR(get_logger(), "Robot dead");
+      robots_list_.clear();
+      robots_list_ = add_robot_->get_robots_list();
+      std::srand(std::time(nullptr)); // solo una vez por ejecución
+
+      int index = std::rand() % robots_list_.size(); 
+      std::cout << "Robots list: ";
+      for (const auto &robot : robots_list_) {
+        std::cout << robot << " ";
+      }
+
+      handleDeadRobot(robots_list_[index]);
+      dead_flag_ = false;
+    }
    
 
     if (!executor_client_->execute_and_check_plan()) {  // Plan finished
@@ -357,13 +379,15 @@ public:
         RCLCPP_ERROR(get_logger(), "Plan finished with error");
         auto domain = domain_expert_->getDomain();
         auto problem = problem_expert_->getProblem();
+        auto plan = planner_client_->getPlan(domain, problem);
+        problem_checker_->get_necesary_predicates();
         bool problem_ok = problem_checker_->check_problem();
         if (problem_ok) {
           RCLCPP_INFO(get_logger(), "Problem OK");
         } else {
           RCLCPP_ERROR(get_logger(), "Problem NOT OK");
         }
-        auto plan = planner_client_->getPlan(domain, problem);
+        
 
         if (!plan.has_value()) {
             std::cout << "Could not find plan to reach goal " <<
@@ -383,7 +407,10 @@ private:
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr goal_suscriber_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr cancel_publisher_;
   std::shared_ptr<ProblemChecker> problem_checker_;
+  std::shared_ptr<AddRobot> add_robot_;
   std::string goal_;
+  bool dead_flag_ = true;
+  std::vector<std::string> robots_list_;
 
   std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
   std::shared_ptr<plansys2::PlannerClient> planner_client_;
@@ -463,7 +490,54 @@ private:
 
     return;
   }
-  
+ 
+  void handleDeadRobot(std::string robot_name){
+    RCLCPP_INFO(get_logger(), "Robot dead");
+    // cancelar plan actual
+    RCLCPP_ERROR(get_logger(), "Cancelling plan");
+    if (!executor_client_) {
+      RCLCPP_ERROR(get_logger(), "executor_client_ is NULL in handleGoalChange!");
+      return;
+    }
+    executor_client_->cancel_plan_execution();
+
+    std::array<std::string,2> robot_info = add_robot_->get_robot_info(robot_name);
+    std::string robot_type = robot_info[0];
+    int robot_id = std::stoi(robot_info[1]);
+    if (robot_id > 1 ){
+      RCLCPP_ERROR(get_logger(), "NO MORE ROBOTS OF THIS TYPE AVAILABLE");
+      return;
+    }
+    std::string robot_name_new = robot_type + "_robot_" + std::to_string(robot_id+1);
+    std::string robot_zone;
+    if (robot_info[0] != "big"){
+      robot_zone = robot_info[0] + "_zone";
+    } else {
+      robot_zone = "inter_zone";
+    }
+
+    std::string robot_init_wp = "unknown_point";
+    
+    RCLCPP_INFO(get_logger(), "Adding new robot %s", robot_name_new.c_str());
+
+    RCLCPP_ERROR(get_logger(), "Plan cancelled");
+    int result = add_robot_->add_robot(robot_name_new, robot_init_wp, robot_zone);
+    if (result == 0) { 
+      RCLCPP_INFO(get_logger(), "Robot %s added successfully", robot_name_new.c_str());
+    } else {
+      RCLCPP_ERROR(get_logger(), "Error adding robot %s", robot_name_new.c_str());
+    }
+    result = add_robot_->delete_robot(robot_name);
+    if (result) {
+      RCLCPP_INFO(get_logger(), "Robot %s deleted successfully", robot_name.c_str());
+    } else {
+      RCLCPP_ERROR(get_logger(), "Error deleting robot %s", robot_name.c_str());
+    }
+    
+
+    
+
+  }
     
   
 };

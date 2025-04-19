@@ -49,7 +49,7 @@ def generate_launch_description():
     ld.add_action(plansys2_cmd)
 
     
-    robot_names = ["small_robot", "medium_robot", "big_robot"]
+    robot_names = ["small_robot_1", "medium_robot_1", "big_robot_1", "small_robot_2", "medium_robot_2", "big_robot_2"]
     move_nodes = {} 
     load_nodes = {}
     unload_nodes = {}

@@ -40,7 +40,7 @@ public:
                 line.find("( loaded_box)") != std::string::npos ||
                 line.find("( idle_robot ") != std::string::npos ||
                 line.find("(= ( current_robot_load ") != std::string::npos){
-
+                std::cout << line << std::endl;
                 std::istringstream iss(line);
                 std::vector<std::string> tokens{std::istream_iterator<std::string>{iss}, 
                                                 std::istream_iterator<std::string>{}};
@@ -55,16 +55,21 @@ public:
                 }
             }
             else if (line.find("( :goal") != std::string::npos) {
+                file.close();
+                outFile.close();
                 return; 
             }
 
         }
+        file.close();
+        outFile.close();
         return;
     }
         
 
     bool check_problem()
     {
+        // Revisar por que no se llama a get necesary predicates
         std::ofstream outFile("predicates.txt");
 
         if (!outFile.is_open()) {
@@ -171,6 +176,8 @@ private:
         std::ifstream file2(input_file2);
         if (!file1 || !file2) {
             std::cerr << "Error opening files" << std::endl;
+            file1.close();
+            file2.close();
             return false;
         }
 
@@ -196,10 +203,13 @@ private:
 
             if (!found) {
                 std::cout << "Not found: " << str1 << std::endl;
+                file1.close();
+                file2.close();
                 return false;
             }
         }
-
+        file1.close();
+        file2.close();
         return true;
     }
     

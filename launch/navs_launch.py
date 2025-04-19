@@ -25,33 +25,70 @@ def generate_launch_description():
     nav2sim_cmd1 = Node(
         package='plansys2_warehouse',
         executable='nav2_sim_node',
-        name='nav2sim',
-        namespace='small_robot',
+        name='nav2sim1',
+        namespace='small_robot_1',
         output='screen',
         parameters=[
             example_dir + '/config/params.yaml']
-        )
+    )
+
     nav2sim_cmd2 = Node(
         package='plansys2_warehouse',
         executable='nav2_sim_node',
-        name='nav2sim',
-        namespace='medium_robot',
+        name='nav2sim2',
+        namespace='small_robot_2',
         output='screen',
         parameters=[
             example_dir + '/config/params.yaml']
-        )
+    )
+
     nav2sim_cmd3 = Node(
         package='plansys2_warehouse',
         executable='nav2_sim_node',
-        name='nav2sim',
-        namespace='big_robot',
+        name='nav2sim3',
+        namespace='medium_robot_1',
         output='screen',
         parameters=[
             example_dir + '/config/params.yaml']
-        )
+    )
+
+    nav2sim_cmd4 = Node(
+        package='plansys2_warehouse',
+        executable='nav2_sim_node',
+        name='nav2sim4',
+        namespace='medium_robot_2',
+        output='screen',
+        parameters=[
+            example_dir + '/config/params.yaml']
+    )
+
+    nav2sim_cmd5 = Node(
+        package='plansys2_warehouse',
+        executable='nav2_sim_node',
+        name='nav2sim5',
+        namespace='big_robot_1',
+        output='screen',
+        parameters=[
+            example_dir + '/config/params.yaml']
+    )
+
+    nav2sim_cmd6 = Node(
+        package='plansys2_warehouse',
+        executable='nav2_sim_node',
+        name='nav2sim6',
+        namespace='big_robot_2',
+        output='screen',
+        parameters=[
+            example_dir + '/config/params.yaml']
+    )
+
     ld.add_action(nav2sim_cmd1)
     ld.add_action(nav2sim_cmd2)
     ld.add_action(nav2sim_cmd3)
+    ld.add_action(nav2sim_cmd4)
+    ld.add_action(nav2sim_cmd5)
+    ld.add_action(nav2sim_cmd6)
+
 
     ld.add_action(declare_namespace_cmd)
     
