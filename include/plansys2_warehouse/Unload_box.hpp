@@ -1,25 +1,22 @@
 #ifndef PLANSYS2_WAREHOUSE__UNLOAD_BOX_HPP_
 #define PLANSYS2_WAREHOUSE__UNLOAD_BOX_HPP_
 
-
-
 #include <string>
 
+#include "lifecycle_msgs/msg/state.hpp"
 #include "plansys2_executor/ActionExecutorClient.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "lifecycle_msgs/msg/state.hpp"
 
-namespace plansys2_warehouse
-{
+namespace plansys2_warehouse {
 
-class Unload_box : public plansys2::ActionExecutorClient
-{
-public:
+class Unload_box : public plansys2::ActionExecutorClient {
+ public:
   Unload_box();
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
+      const rclcpp_lifecycle::State& previous_state);
 
-private:
+ private:
   void do_work() override;
   int counter_;
 };

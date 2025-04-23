@@ -3,25 +3,23 @@
 
 #include <string>
 
+#include "behaviortree_cpp_v3/basic_types.h"
+#include "lifecycle_msgs/msg/state.hpp"
 #include "plansys2_executor/ActionExecutorClient.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "lifecycle_msgs/msg/state.hpp"
-#include "behaviortree_cpp_v3/basic_types.h"
 
-namespace plansys2_warehouse
-{
+namespace plansys2_warehouse {
 
-class Load_box : public plansys2::ActionExecutorClient
-{
-public:
+class Load_box : public plansys2::ActionExecutorClient {
+ public:
   Load_box();
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
+      const rclcpp_lifecycle::State& previous_state);
 
-private:
-
+ private:
   void do_work() override;
-  
+
   int counter_;
   bool fail_flag_ = true;
   bool action_cancelled_ = false;
