@@ -52,9 +52,6 @@ include_directories(include)
 # add_library(unload_node SHARED src/behavior_tree_nodes/Unload_box.cpp)
 # list(APPEND plugin_libs unload_node)
 
-add_library(problem_checker SHARED src/problem_checker.cpp)
-ament_target_dependencies(problem_checker ${dependencies})
-
 
 
 foreach(bt_plugin ${plugin_libs})
@@ -73,7 +70,7 @@ ament_target_dependencies(unload_node ${dependencies})
 
 add_executable(warehouse_controller_node src/warehouse_controller_node.cpp)
 ament_target_dependencies(warehouse_controller_node ${dependencies})
-target_link_libraries(warehouse_controller_node problem_checker)
+# target_link_libraries(warehouse_controller_node problem_checker)
 
 add_executable(nav2_sim_node src/nav2_sim_node.cpp)
 ament_target_dependencies(nav2_sim_node ${dependencies})
@@ -83,13 +80,13 @@ ament_target_dependencies(goal_reader_node ${dependencies})
 
 
 
-install(DIRECTORY launch pddl behavior_trees_xml config DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch pddl config DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
   move_node
   load_node
   unload_node
-  
+
   warehouse_controller_node
   nav2_sim_node
   goal_reader_node
@@ -102,7 +99,7 @@ install(TARGETS
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
-  set (ament_cmake_cpplint_FOUND TRUE)
+  set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 
   find_package(ament_cmake_gtest REQUIRED)

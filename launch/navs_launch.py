@@ -1,27 +1,16 @@
-import os
+# Copyright 2025 Nicolás García Moncho
 
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
-
     ld = LaunchDescription()
-  
     # Get the launch directory
     example_dir = get_package_share_directory('plansys2_warehouse')
-    namespace = LaunchConfiguration('namespace')
 
-    declare_namespace_cmd = DeclareLaunchArgument(
-        'namespace',
-        default_value='',
-        description='Namespace')
-    
     nav2sim_cmd1 = Node(
         package='plansys2_warehouse',
         executable='nav2_sim_node',
@@ -89,7 +78,4 @@ def generate_launch_description():
     ld.add_action(nav2sim_cmd5)
     ld.add_action(nav2sim_cmd6)
 
-
-    ld.add_action(declare_namespace_cmd)
-    
     return ld

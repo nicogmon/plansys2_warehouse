@@ -1,4 +1,4 @@
-# Copyright 2019 Intelligent Robotics Lab
+# Copyright 2025 Nicolás García Moncho
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -22,9 +23,10 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+
 def generate_launch_description():
     ld = LaunchDescription()
-  
+
     # Get the launch directory
     example_dir = get_package_share_directory('plansys2_warehouse')
     namespace = LaunchConfiguration('namespace')
@@ -33,7 +35,7 @@ def generate_launch_description():
         'namespace',
         default_value='',
         description='Namespace')
-    
+
     plansys2_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(
             get_package_share_directory('plansys2_bringup'),
@@ -48,9 +50,9 @@ def generate_launch_description():
     ld.add_action(declare_namespace_cmd)
     ld.add_action(plansys2_cmd)
 
-    
-    robot_names = ["small_robot_1", "medium_robot_1", "big_robot_1", "small_robot_2", "medium_robot_2", "big_robot_2"]
-    move_nodes = {} 
+    robot_names = ["small_robot_1", "medium_robot_1", "big_robot_1",
+                   "small_robot_2", "medium_robot_2", "big_robot_2"]
+    move_nodes = {}
     load_nodes = {}
     unload_nodes = {}
 
@@ -59,7 +61,7 @@ def generate_launch_description():
             package='plansys2_warehouse',
             executable='move_node',
             name=f"move_{robot_name}",
-            namespace='',#f"{robot_name}",#preguntar a fran por el namesapce igual esto nos ayuda a la hora de que lo acccepte el action executor correcto
+            namespace='',
             output='screen',
             parameters=[
                 example_dir + '/config/params.yaml',
@@ -69,7 +71,7 @@ def generate_launch_description():
                     'server_port': 1669
                 }
             ])
-        
+
         load_nodes[f"load_node_{robot_name}"] = Node(
             package='plansys2_warehouse',
             executable='load_node',
@@ -81,23 +83,24 @@ def generate_launch_description():
                 {
                     'action_name': f"load_box_{robot_name}",
                 }])
-        
+
         unload_nodes[f"unload_node_{robot_name}"] = Node(
             package='plansys2_warehouse',
             executable='unload_node',
             name=f"unload_box_{robot_name}",
             namespace='',
             output='screen',
-            parameters=[example_dir + '/config/params.yaml',
+            parameters=[
+                example_dir + '/config/params.yaml',
                 {
                     'action_name': f"unload_box_{robot_name}",
-                }])
-        
+                }]
+        )
 
         ld.add_action(move_nodes[f"move_node_{robot_name}"])
         ld.add_action(load_nodes[f"load_node_{robot_name}"])
         ld.add_action(unload_nodes[f"unload_node_{robot_name}"])
-    
+
     goal_reader_cmd = Node(
         package='plansys2_warehouse',
         executable='goal_reader_node',
@@ -107,32 +110,5 @@ def generate_launch_description():
         parameters=[example_dir + '/config/params.yaml']
         )
     ld.add_action(goal_reader_cmd)
-    
-    
-    # controller_cmd = Node(
-    #     package='plansys2_house_problem',
-    #     executable='house_controller_node',
-    #     name='house_controller',
-    #     namespace=namespace,
-    #     output='screen',
-    #     parameters=[example_dir + '/config/params.yaml']
-    #     )
-    
 
-    
-    
-    
-
-    # Create the launch description and populate
-    
-
-    # Declare the launch options
-    
-    
-
-    # ld.add_action(controller_cmd)
-
-    
-    
-    
     return ld

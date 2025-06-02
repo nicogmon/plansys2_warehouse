@@ -1,6 +1,6 @@
+
 box_at s_box_1 warehouse_2_sh
-box_at s_box_2 warehouse_2_sh
-box_at s_box_3 warehouse_2_sh
 box_at m_box_1 warehouse_2_sh
+box_at s_box_2 warehouse_2_sh
+
 box_at m_box_2 warehouse_2_sh
-box_at m_box_3 warehouse_2_sh

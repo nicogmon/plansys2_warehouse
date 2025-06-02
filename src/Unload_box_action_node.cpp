@@ -1,4 +1,4 @@
-// Copyright 2019 Intelligent Robotics Lab
+// Copyright 2025 Nicolás García Moncho
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PLANSYS2_WAREHOUSE__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_
-#define PLANSYS2_WAREHOUSE__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_
-
-#include <string>
 #include <iostream>
+#include <string>
 
 #include "plansys2_warehouse/Unload_box.hpp"
 
@@ -30,47 +27,53 @@ Unload_box::Unload_box()
   counter_ = 0;
   get_parameter_or("specialized_arguments", specialized_arguments_, std::vector<std::string>({""}));
 
-  
   RCLCPP_INFO(get_logger(), "Unload_box created");
   auto esp_size = specialized_arguments_.size();
   RCLCPP_INFO(get_logger(), "Specialized arguments size: %ld", esp_size);
   RCLCPP_INFO(get_logger(), "Specialized argument: %s", specialized_arguments_[0].c_str());
 }
 
-
-
 void Unload_box::do_work()
 {
-  RCLCPP_INFO(get_logger(), "Unload_box tick %d", counter_);
-  
+  if (counter_ == 0){
+  // RCLCPP_INFO(get_logger(), "%s unloading box %s",get_arguments()[0].c_str(), get_arguments()[1].c_str());
+  std::cout << get_arguments()[0].c_str() << " unloading box " << get_arguments()[1].c_str() << std::endl;
+  }
+
   counter_++;
 
-  // if (rand() % 1 == 0) {
-  //   std::cout << "Unload_box failed" << std::endl;
-  //   counter_ = 0;
-  //   finish(false, counter / 5, "Unload_box failed");
-  // }
+  if ((rand() % 5 == 0) && fail_flag_) {
+    RCLCPP_ERROR(get_logger(), "Unload_box failed");
+    fail_flag_ = false;
+    counter_ = 0;
+    finish(false, 0.1, "Unload_box failed");
+    return;
+  }
+
   if (counter_ < 5) {
     send_feedback(counter_, "Unload running");
-
   } else {
+    // RCLCPP_INFO(get_logger(), "%s unloaded at %s",get_arguments()[1].c_str(), get_arguments()[2].c_str());
+    std::cout << get_arguments()[1].c_str() << " unloaded at " << get_arguments()[2].c_str() << std::endl;
     counter_ = 0;
-    finish(true, 1.0, "Unload completed");//segundo parametro nos puede servir
-                                          //para indicar fallo a mitad de ejecucion
-                                          // y el rpimero indicar que ha fallado la accion
+    finish(true, 1.0, "Unload completed");  // segundo parametro nos puede servir
+                                            // para indicar fallo a mitad de ejecucion
+                                            //  y el rpimero indicar que ha fallado la accion
   }
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 Unload_box::on_deactivate(const rclcpp_lifecycle::State & previous_state)
 {
-  RCLCPP_INFO(get_logger(), "Unload_box deactivated");
+  // RCLCPP_INFO(get_logger(), "Unload_box deactivated");
   counter_ = 0;
-  finish(true, 1.0, "Unload_box deactivated");
+  // finish(true, 1.0, "Unload_box deactivated");
   return ActionExecutorClient::on_deactivate(previous_state);
 }
 
-}
+}  // namespace plansys2_warehouse
+
+// namespace plansys2_warehouse
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
@@ -83,5 +86,4 @@ int main(int argc, char ** argv)
 
   rclcpp::shutdown();
   return 0;
-}
-#endif // PLANSYS2_WAREHOUSE__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_
+}  // namespace plansys2_warehouse

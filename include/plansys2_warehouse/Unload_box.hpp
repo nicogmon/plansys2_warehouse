@@ -1,3 +1,5 @@
+// Copyright 2025 Nicolás García Moncho
+
 #ifndef PLANSYS2_WAREHOUSE__UNLOAD_BOX_HPP_
 #define PLANSYS2_WAREHOUSE__UNLOAD_BOX_HPP_
 
@@ -8,18 +10,21 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-namespace plansys2_warehouse {
+namespace plansys2_warehouse
+{
 
-class Unload_box : public plansys2::ActionExecutorClient {
- public:
+class Unload_box : public plansys2::ActionExecutorClient
+{
+public:
   Unload_box();
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
-      const rclcpp_lifecycle::State& previous_state);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_deactivate(const rclcpp_lifecycle::State & previous_state);
 
- private:
+private:
   void do_work() override;
   int counter_;
+  bool fail_flag_ = false;
 };
 
 }  // namespace plansys2_warehouse
-#endif  // PLANSYS2_WAREHOUSE__BEHAVIOR_TREE_NODES__UNLOAD_BOX_HPP_
+#endif  // PLANSYS2_WAREHOUSE__UNLOAD_BOX_HPP_

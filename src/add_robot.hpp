@@ -1,3 +1,7 @@
+// Copyright 2025 Nicolás García Moncho
+#ifndef ADD_ROBOT_HPP
+#define ADD_ROBOT_HPP
+
 #include <iostream>
 #include <memory>
 #include <set>
@@ -10,15 +14,19 @@
 #include "plansys2_planner/PlannerClient.hpp"
 #include "plansys2_problem_expert/ProblemExpertClient.hpp"
 
-class AddRobot {
- public:
+class AddRobot
+{
+public:
   // Constructor: recibe un puntero compartido al problem expert
-  AddRobot(std::shared_ptr<plansys2::ProblemExpertClient> problem_expert)
-      : problem_expert_(problem_expert) {}
+  explicit AddRobot(std::shared_ptr<plansys2::ProblemExpertClient> problem_expert)
+  : problem_expert_(problem_expert)
+  {}
 
   // Método principal: añade predicados relacionados con el robot
-  int add_robot(const std::string& robot_id, const std::string& initial_location,
-                const std::string& robot_zone) {
+  int add_robot(
+    const std::string & robot_id, const std::string & initial_location,
+    const std::string & robot_zone)
+  {
     if (robot_id.empty() || initial_location.empty() || robot_zone.empty()) {
       std::cerr << "Error: robot_id, initial_location or robot_zone is empty." << std::endl;
       return -1;
@@ -50,7 +58,8 @@ class AddRobot {
 
     return result ? 0 : -1;
   }
-  bool delete_robot(const std::string& robot_id) {
+  bool delete_robot(const std::string & robot_id)
+  {
     if (robot_id.empty()) {
       std::cerr << "Error: robot_id is empty." << std::endl;
       return -1;
@@ -59,10 +68,11 @@ class AddRobot {
 
     result &= problem_expert_->removeInstance(plansys2::Instance{robot_id, "robot"});
 
-    return result ? 0 : -1;
+    return result;
   }
 
-  std::array<std::string, 2> get_robot_info(const std::string& robot_id) {
+  std::array<std::string, 2> get_robot_info(const std::string & robot_id)
+  {
     std::array<std::string, 2> robot_info;
 
     // Separar usando el guion bajo como delimitador
@@ -82,16 +92,17 @@ class AddRobot {
       return {"", ""};
     }
 
-    std::cout << "Primera parte: " << robot_info[0] << std::endl;
-    std::cout << "Última parte: " << robot_info[1] << std::endl;
+    // std::cout << "Primera parte: " << robot_info[0] << std::endl;
+    // std::cout << "Última parte: " << robot_info[1] << std::endl;
 
     return robot_info;
   }
 
-  std::vector<std::string> get_robots_list() {
+  std::vector<std::string> get_robots_list()
+  {
     std::vector<std::string> robots;
     auto instances = problem_expert_->getInstances();
-    for (const auto& instance : instances) {
+    for (const auto & instance : instances) {
       if (instance.type == "robot") {
         robots.push_back(instance.name);
       }
@@ -99,6 +110,7 @@ class AddRobot {
     return robots;
   }
 
- private:
+private:
   std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_;
 };
+#endif // ADD_ROBOT_HPP

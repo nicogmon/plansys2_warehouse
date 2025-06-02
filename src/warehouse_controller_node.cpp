@@ -1,4 +1,4 @@
-// Copyright 2019 Intelligent Robotics Lab
+// Copyright 2025 Nicolás García Moncho 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,52 +12,58 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <chrono>
 #include <fstream>
 #include <memory>
-#include <plansys2_pddl_parser/Utils.hpp>
 #include <random>
 
-#include "add_robot.cpp"
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
 #include "plansys2_domain_expert/DomainExpertClient.hpp"
 #include "plansys2_executor/ExecutorClient.hpp"
 #include "plansys2_msgs/msg/action_execution_info.hpp"
 #include "plansys2_msgs/msg/plan.hpp"
+#include "plansys2_pddl_parser/Utils.hpp"
 #include "plansys2_planner/PlannerClient.hpp"
 #include "plansys2_problem_expert/ProblemExpertClient.hpp"
-#include "problem_checker.cpp"
+
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "std_msgs/msg/string.hpp"
 
-class WarehouseController : public rclcpp::Node {
- public:
-  WarehouseController() : rclcpp::Node("warehouse_controller") {
+#include "add_robot.hpp"
+#include "problem_checker.hpp"
+
+class WarehouseController : public rclcpp::Node
+{
+public:
+  WarehouseController()
+  : rclcpp::Node("warehouse_controller")
+  {
     goal_suscriber_ = this->create_subscription<std_msgs::msg::String>(
         "/goal", 10, std::bind(&WarehouseController::goal_callback, this, std::placeholders::_1));
     cancel_publisher_ = this->create_publisher<std_msgs::msg::String>("/cancel", 10);
   }
-  void goal_callback(const std_msgs::msg::String::SharedPtr msg) { goal_ = msg->data.c_str(); }
+  void goal_callback(const std_msgs::msg::String::SharedPtr msg) {goal_ = msg->data.c_str();}
 
-  int init() {
+  int init()
+  {
     if (goal_.empty()) {
       RCLCPP_INFO(get_logger(), "Goal not received yet");
       return 0;
     }
-    RCLCPP_INFO(get_logger(), "HOLAAAAAA");
+
     domain_expert_ = std::make_shared<plansys2::DomainExpertClient>();
     planner_client_ = std::make_shared<plansys2::PlannerClient>();
     problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
     executor_client_ = std::make_shared<plansys2::ExecutorClient>();
     init_knowledge();
     problem_checker_ = std::make_shared<ProblemChecker>(problem_expert_);
-    problem_checker_->get_necesary_predicates();
-    // POSIBLE MEJORA NO MUY COMPLICADA DE IMPLEMENTAR//////////////////////////
-    add_robot_ = std::make_shared<AddRobot>(
-        problem_expert_);  // crear suscripcion que al publicarse en un topic llame a este metodo
-    // se puede meter en una funcion abajo
-    ////////////////////////////////////////////////////////////////////////////
+    problem_checker_->get_necessary_predicates();
+
+    add_robot_ =
+      std::make_shared<AddRobot>(problem_expert_);
+
     problem_expert_->setGoal(plansys2::Goal(goal_));
     RCLCPP_INFO(get_logger(), "Goal set successfully: %s", goal_.c_str());
 
@@ -78,7 +84,8 @@ class WarehouseController : public rclcpp::Node {
     return 1;
   }
 
-  void init_knowledge() {
+  void init_knowledge()
+  {
     problem_expert_->addInstance(plansys2::Instance{"small_robot_1", "robot"});
     problem_expert_->addInstance(plansys2::Instance{"medium_robot_1", "robot"});
     problem_expert_->addInstance(plansys2::Instance{"big_robot_1", "robot"});
@@ -279,68 +286,57 @@ class WarehouseController : public rclcpp::Node {
     problem_expert_->addFunction(plansys2::Function("(= (distance_s m_central m_sh_3) 46)"));
   }
 
-  void step() {
-    auto feedback = executor_client_->getFeedBack();
+  void step()
+  {
+    check_actions_state();
+    // feedback = executor_client_->getFeedBack();
+    // action_CANCELLED.clear();
 
-    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_NOT_EXECUTED;
-    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
-    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_FAILED;
-    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_SUCCEEDED;
-    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
-
-    for (const auto& action_feedback : feedback.action_execution_status) {
-      if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::NOT_EXECUTED) {
-        action_NOT_EXECUTED.push_back(action_feedback);
-      } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::EXECUTING) {
-        action_EXECUTING.push_back(action_feedback);
-      } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::FAILED) {
-        action_FAILED.push_back(action_feedback);
-      } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::SUCCEEDED) {
-        action_SUCCEEDED.push_back(action_feedback);
-      } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
-        action_CANCELLED.push_back(action_feedback);
-      }
-    }
-    // for (const auto &action : action_NOT_EXECUTED) {
-    //   RCLCPP_INFO(get_logger(), "Action %s NOT_EXECUTED", action.action_full_name.c_str());
+    // for (const auto& action_feedback : feedback.action_execution_status)
+    // {
+    //   if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED)
+    //   {
+    //     action_CANCELLED.push_back(action_feedback);
+    //   }
     // }
-    RCLCPP_INFO(get_logger(), "ACTIONS STATTEEEEE ");
+    // for (auto& action : action_CANCELLED)
+    // {
+    //   RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
+    //   problem_checker_->restore_action(action);
+    // }
 
-    for (const auto& action : action_EXECUTING) {
-      RCLCPP_INFO(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
-    }
-    for (auto& action : action_FAILED) {
-      RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
-      problem_checker_->restore_action(action);
-    }
-    if (!action_FAILED.empty()) {
-      RCLCPP_INFO(get_logger(), "Actions reverted after failure");
-      executor_client_->cancel_plan_execution();
-      action_FAILED.clear();
-    }
-
-    feedback = executor_client_->getFeedBack();
-    action_CANCELLED.clear();
-
-    for (const auto& action_feedback : feedback.action_execution_status) {
-      if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
-        action_CANCELLED.push_back(action_feedback);
-      }
-    }
-    for (auto& action : action_CANCELLED) {
-      RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
-      problem_checker_->restore_action(action);
-    }
-    std::cout << "\n\n";
-
+    /////////////////////////////// GOAL ////////////////////////////////////
     plansys2::Goal actual_goal = problem_expert_->getGoal();
 
     if (parser::pddl::toString(actual_goal) != goal_) {
-      handleGoalChange();
+      if (idle_system){
+        RCLCPP_INFO(get_logger(), "Starting new plan");
+        problem_expert_->setGoal(plansys2::Goal(goal_));
+        auto domain = domain_expert_->getDomain();
+        auto problem = problem_expert_->getProblem();
+        auto plan = planner_client_->getPlan(domain, problem);
+        if (!plan.has_value()) {
+          std::cout << "Could not find plan to reach goal "
+                    << parser::pddl::toString(problem_expert_->getGoal()) << std::endl;
+          exit(0);
+        }
+        if (!executor_client_->start_plan_execution(plan.value())) {
+          RCLCPP_ERROR(get_logger(), "Error starting a new plan (first)");
+        }
+        idle_system = false;
+      } else
+      {
+      bool result = handleGoalChange();
+      if (!result) {
+        return;
+      }
       RCLCPP_INFO(get_logger(), "Goal changed");
+      }
     }
-
-    if (dead_flag_ && rand() % 3 == 0) {
+    // /////////////////////////////////////////////////////////////////////////
+    ////////////////////////////// DEAD ROBOT ///////////////////////////////
+    if (dead_flag_ && rand() % 10 == 0)
+    {
       RCLCPP_ERROR(get_logger(), "Robot dead");
       robots_list_.clear();
       robots_list_ = add_robot_->get_robots_list();
@@ -348,27 +344,36 @@ class WarehouseController : public rclcpp::Node {
 
       int index = std::rand() % robots_list_.size();
       std::cout << "Robots list: ";
-      for (const auto& robot : robots_list_) {
+      for (const auto& robot : robots_list_)
+      {
         std::cout << robot << " ";
       }
-
+      // std::vector<std::string> list= { "big_robot_1","medium_robot_1","small_robot_1" };
       handleDeadRobot(robots_list_[index]);
+      // robot_deads++;
+      // if (robot_deads == 3){
       dead_flag_ = false;
+      // }
     }
-
+    /////////////////////////////////////////////////////////////////////////
     if (!executor_client_->execute_and_check_plan()) {  // Plan finished
       auto result = executor_client_->getResult();
 
       if (result.value().success) {
         RCLCPP_INFO(get_logger(), "Plan succesfully finished");
-        exit(0);
+        idle_system = true;
+        // exit(0);
+        
       } else {
         // exit(1);
         RCLCPP_ERROR(get_logger(), "Plan finished with error");
         auto domain = domain_expert_->getDomain();
         auto problem = problem_expert_->getProblem();
         auto plan = planner_client_->getPlan(domain, problem);
-        problem_checker_->get_necesary_predicates();
+        if (new_robot_flag_) {
+          problem_checker_->get_necessary_predicates();
+          new_robot_flag_ = false;
+        }
         bool problem_ok = problem_checker_->check_problem();
         if (problem_ok) {
           RCLCPP_INFO(get_logger(), "Problem OK");
@@ -388,41 +393,75 @@ class WarehouseController : public rclcpp::Node {
     }
   }
 
- private:
+private:
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr goal_suscriber_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr cancel_publisher_;
   std::shared_ptr<ProblemChecker> problem_checker_;
   std::shared_ptr<AddRobot> add_robot_;
   std::string goal_;
   bool dead_flag_ = true;
+  bool new_robot_flag_ = false;
   std::vector<std::string> robots_list_;
+  int robot_deads = 0;
+  bool idle_system = false;
 
   std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
   std::shared_ptr<plansys2::PlannerClient> planner_client_;
   std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_;
   std::shared_ptr<plansys2::ExecutorClient> executor_client_;
 
-  void handleGoalChange() {
-    RCLCPP_INFO(get_logger(), "Goal changed");
-    // cancelar plan actual
-    RCLCPP_ERROR(get_logger(), "Cancelling plan");
-    if (!executor_client_) {
-      RCLCPP_ERROR(get_logger(), "executor_client_ is NULL in handleGoalChange!");
-      return;
-    }
-    executor_client_->cancel_plan_execution();
-    // esperar y mirar a ver si sale cancelada con while o hacer maquina estado simple.
-    RCLCPP_ERROR(get_logger(), "Plan cancelled");
+  void check_actions_state()
+  {
+    auto feedback = executor_client_->getFeedBack();
 
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_NOT_EXECUTED;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_FAILED;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_SUCCEEDED;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
+
+    for (const auto & action_feedback : feedback.action_execution_status) {
+      if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::NOT_EXECUTED) {
+        action_NOT_EXECUTED.push_back(action_feedback);
+      } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::EXECUTING) {
+        action_EXECUTING.push_back(action_feedback);
+      } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::FAILED) {
+        action_FAILED.push_back(action_feedback);
+      } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::SUCCEEDED) {
+        action_SUCCEEDED.push_back(action_feedback);
+      } else if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
+        action_CANCELLED.push_back(action_feedback);
+      }
+    }
+    // for (const auto &action : action_NOT_EXECUTED) {
+    //   RCLCPP_INFO(get_logger(), "Action %s NOT_EXECUTED", action.action_full_name.c_str());
+    // }
+    RCLCPP_INFO(get_logger(), "ACTIONS STATE ");
+
+    for (const auto & action : action_EXECUTING) {
+      RCLCPP_INFO(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
+    }
+    for (auto & action : action_FAILED) {
+      RCLCPP_INFO(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
+      // problem_checker_->restore_action(action);
+    }
+    if (!action_FAILED.empty()) {
+      executor_client_->cancel_plan_execution();
+      revert_actions();
+      RCLCPP_INFO(get_logger(), "Actions reverted after failure");
+      action_FAILED.clear();
+    }
+  }
+
+  void revert_actions()
+  {
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_FAILED;
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
 
-    auto status = executor_client_->getResult();
-
     auto feedback = executor_client_->getFeedBack();
 
-    for (const auto& action_feedback : feedback.action_execution_status) {
+    for (const auto & action_feedback : feedback.action_execution_status) {
       if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
         action_CANCELLED.push_back(action_feedback);
       }
@@ -435,46 +474,66 @@ class WarehouseController : public rclcpp::Node {
     }
 
     if (!action_CANCELLED.empty()) {
-      RCLCPP_INFO(get_logger(), "Actions CANCELLED after goal change");
-      for (auto& action : action_CANCELLED) {
-        RCLCPP_ERROR(get_logger(), "Action %s CANCELLED tras goal",
-                     action.action_full_name.c_str());
+      RCLCPP_INFO(get_logger(), "Actions CANCELLED");
+      for (auto & action : action_CANCELLED) {
+        RCLCPP_ERROR(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
         problem_checker_->restore_action(action);
       }
       action_CANCELLED.clear();
     }
     if (!action_FAILED.empty()) {
-      RCLCPP_INFO(get_logger(), "Actions FAILED after goal change");
-      for (auto& action : action_FAILED) {
-        RCLCPP_ERROR(get_logger(), "Action %s FAILED tras goal", action.action_full_name.c_str());
+      RCLCPP_INFO(get_logger(), "Actions FAILED");
+      for (auto & action : action_FAILED) {
+        RCLCPP_ERROR(get_logger(), "Action %s FAILED", action.action_full_name.c_str());
         problem_checker_->restore_action(action);
       }
       action_FAILED.clear();
     }
     if (!action_EXECUTING.empty()) {
-      RCLCPP_INFO(get_logger(), "Actions EXECUTING after goal change");
-      for (auto& action : action_EXECUTING) {
-        RCLCPP_ERROR(get_logger(), "Action %s EXECUTING tras goal",
-                     action.action_full_name.c_str());
+      RCLCPP_INFO(get_logger(), "Actions EXECUTING");
+      for (auto & action : action_EXECUTING) {
+        RCLCPP_ERROR(get_logger(), "Action %s EXECUTING", action.action_full_name.c_str());
         problem_checker_->restore_action(action);
       }
       action_EXECUTING.clear();
     }
+  }
+
+  bool handleGoalChange()
+  {
+    RCLCPP_INFO(get_logger(), "Goal changed");
+    // cancelar plan actual
+    RCLCPP_ERROR(get_logger(), "Cancelling plan");
+    if (!executor_client_) {
+      RCLCPP_ERROR(get_logger(), "executor_client_ is NULL in handleGoalChange!");
+      return false;
+    }
+    executor_client_->cancel_plan_execution();
+    // esperar y mirar a ver si sale cancelada con while o hacer maquina estado simple.
+    RCLCPP_ERROR(get_logger(), "Plan cancelled");
+
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_FAILED;
+    std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
+
+    revert_actions();
     // JAMAS SE CANCELAN LAS ACCIONES, SIEMPRE SE QUEDAN EN EXECUTING
 
     auto cancel_msg = std_msgs::msg::String();
     cancel_msg.data = "plan_cancelled";
     cancel_publisher_->publish(cancel_msg);
-
+    if (goal_.empty()) {
+      RCLCPP_ERROR(get_logger(), "Empty goal waiting until valid goal exists.");
+      return false;
+    }
     problem_expert_->setGoal(plansys2::Goal(goal_));
-    RCLCPP_INFO(get_logger(), "Goal set successfully: %s", goal_.c_str());
+    RCLCPP_INFO(get_logger(), "Goal set successfully: a%sa", goal_.c_str());
 
-    return;
+    return true;
   }
 
-  void handleDeadRobot(std::string robot_name) {
-    RCLCPP_INFO(get_logger(), "Robot dead");
-    // cancelar plan actual
+  void handleDeadRobot(std::string robot_name)
+  {
     RCLCPP_ERROR(get_logger(), "Cancelling plan");
     if (!executor_client_) {
       RCLCPP_ERROR(get_logger(), "executor_client_ is NULL in handleGoalChange!");
@@ -485,31 +544,32 @@ class WarehouseController : public rclcpp::Node {
     std::array<std::string, 2> robot_info = add_robot_->get_robot_info(robot_name);
     std::string robot_type = robot_info[0];
     int robot_id = std::stoi(robot_info[1]);
+    revert_actions();
     if (robot_id > 1) {
       RCLCPP_ERROR(get_logger(), "NO MORE ROBOTS OF THIS TYPE AVAILABLE");
-      return;
-    }
-    std::string robot_name_new = robot_type + "_robot_" + std::to_string(robot_id + 1);
-    std::string robot_zone;
-    if (robot_info[0] != "big") {
-      robot_zone = robot_info[0] + "_zone";
     } else {
-      robot_zone = "inter_zone";
+      std::string robot_name_new = robot_type + "_robot_" + std::to_string(robot_id + 1);
+      std::string robot_zone;
+      if (robot_type != "big") {
+        robot_zone = robot_info[0] + "_zone";
+      } else {
+        robot_zone = "inter_zone";
+      }
+
+      std::string robot_init_wp = "unknown_point";
+
+      // RCLCPP_INFO(get_logger(), "Adding new robot %s", robot_name_new.c_str());
+
+      int result = add_robot_->add_robot(robot_name_new, robot_init_wp, robot_zone);
+      if (result == 0) {
+        RCLCPP_INFO(get_logger(), "Robot %s added successfully", robot_name_new.c_str());
+        new_robot_flag_ = true;
+      } else {
+        RCLCPP_ERROR(get_logger(), "Error adding robot %s", robot_name_new.c_str());
+      }
     }
-
-    std::string robot_init_wp = "unknown_point";
-
-    RCLCPP_INFO(get_logger(), "Adding new robot %s", robot_name_new.c_str());
-
-    RCLCPP_ERROR(get_logger(), "Plan cancelled");
-    int result = add_robot_->add_robot(robot_name_new, robot_init_wp, robot_zone);
-    if (result == 0) {
-      RCLCPP_INFO(get_logger(), "Robot %s added successfully", robot_name_new.c_str());
-    } else {
-      RCLCPP_ERROR(get_logger(), "Error adding robot %s", robot_name_new.c_str());
-    }
-    result = add_robot_->delete_robot(robot_name);
-    if (result) {
+    bool add_result = add_robot_->delete_robot(robot_name);
+    if (add_result) {
       RCLCPP_INFO(get_logger(), "Robot %s deleted successfully", robot_name.c_str());
     } else {
       RCLCPP_ERROR(get_logger(), "Error deleting robot %s", robot_name.c_str());
@@ -517,7 +577,8 @@ class WarehouseController : public rclcpp::Node {
   }
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char ** argv)
+{
   rclcpp::init(argc, argv);
   auto node = std::make_shared<WarehouseController>();
 

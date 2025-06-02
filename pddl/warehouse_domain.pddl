@@ -1,38 +1,25 @@
 (define (domain warehouse_domain)
 (:requirements :strips :typing :durative-actions :fluents :equality :negative-preconditions)
 
-; Types
 (:types
     robot
-    ; shelve_waypoint - waypoint
     waypoint 
     box 
     zone 
 )
-
-
-
-; Predicates
 (:predicates
     (robot_zone ?r - robot ?z - zone)
     (robot_at ?r - robot ?w - waypoint)
+    (idle_robot ?r - robot)
+    (loaded_box ?b - box ?r - robot)
     (connected ?w1 - waypoint ?w2 - waypoint)
     (waypoint_from_zone ?w - waypoint ?z - zone)
     (box_at ?b - box ?w - waypoint)
-    ; (box_of_type ?b - box ?z - zone)
-    ; (shelve_at ?sw - shelve_waypoint ?z - zone)
-    (idle_robot ?r - robot)
-    (loaded_box ?b - box ?r - robot)
-    
 )
-;  (:constants common_zone - waypoint)
 (:functions
     (robot_capacity ?r -robot)
     (current_robot_load ?r -robot)
     (distance_s ?w1 - waypoint ?w2 - waypoint)
-    ; (boxes_in_shelve ?sw - shelve_waypoint)
-    ; (shelve_capacity ?sw - shelve_waypoint)
-
 )
 (:constants
     unknown_point - waypoint
