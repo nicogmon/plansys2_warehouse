@@ -22,9 +22,12 @@ using namespace std::chrono_literals;
 namespace plansys2_warehouse
 {
 Unload_box::Unload_box()
-: plansys2::ActionExecutorClient("unload_box", 1s)
+: plansys2::ActionExecutorClient("unload_box", 1s),
+  gen_(rd_())
 {
   counter_ = 0;
+  dis_ = std::uniform_int_distribution<>(0, prob_ -1 );
+  
   get_parameter_or("specialized_arguments", specialized_arguments_, std::vector<std::string>({""}));
 
   RCLCPP_INFO(get_logger(), "Unload_box created");
@@ -42,7 +45,7 @@ void Unload_box::do_work()
 
   counter_++;
 
-  if ((rand() % 5 == 0) && fail_flag_) {
+  if ((dis_(gen_) == 0) && fail_flag_) {
     RCLCPP_ERROR(get_logger(), "Unload_box failed");
     fail_flag_ = false;
     counter_ = 0;
@@ -67,6 +70,7 @@ Unload_box::on_deactivate(const rclcpp_lifecycle::State & previous_state)
 {
   // RCLCPP_INFO(get_logger(), "Unload_box deactivated");
   counter_ = 0;
+
   // finish(true, 1.0, "Unload_box deactivated");
   return ActionExecutorClient::on_deactivate(previous_state);
 }

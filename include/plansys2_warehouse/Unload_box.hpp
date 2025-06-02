@@ -4,6 +4,7 @@
 #define PLANSYS2_WAREHOUSE__UNLOAD_BOX_HPP_
 
 #include <string>
+#include <random>
 
 #include "lifecycle_msgs/msg/state.hpp"
 #include "plansys2_executor/ActionExecutorClient.hpp"
@@ -23,7 +24,12 @@ public:
 private:
   void do_work() override;
   int counter_;
-  bool fail_flag_ = false;
+  bool fail_flag_ = false; // true for action failure simulation
+
+  std::random_device rd_;
+  std::mt19937 gen_;
+  std::uniform_int_distribution<> dis_;
+  int prob_ = 5;
 };
 
 }  // namespace plansys2_warehouse

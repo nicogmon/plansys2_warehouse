@@ -22,10 +22,11 @@ namespace plansys2_warehouse
 {
 
 Load_box::Load_box()
-: plansys2::ActionExecutorClient("load_box", 1s)
+: plansys2::ActionExecutorClient("load_box", 1s),
+  gen_(rd_())
 {
   counter_ = 0;
-
+  dis_ = std::uniform_int_distribution<>(0, prob_ -1 );
   get_parameter_or("specialized_arguments", specialized_arguments_, std::vector<std::string>({""}));
 
   RCLCPP_INFO(get_logger(), "Load_box created");
@@ -44,12 +45,12 @@ void Load_box::do_work()
   std::cout << get_arguments()[0].c_str() << " loading box " << get_arguments()[1].c_str() << std::endl;
   }
   counter_++;
-  int prob = 10;
+  
 
   // if (strcmp(specialized_arguments_[0].c_str(), "small_robot_1") == 0) {
   //   prob = 2;
   // }
-  if ((rand() % prob == 0) && fail_flag_) {
+  if ((dis_(gen_) == 0) && fail_flag_) {
     RCLCPP_ERROR(get_logger(), "Load_box failed");
     fail_flag_ = false;
     counter_ = 0;

@@ -4,6 +4,7 @@
 #define PLANSYS2_WAREHOUSE__LOAD_BOX_HPP_
 
 #include <string>
+#include <random>
 
 #include "behaviortree_cpp_v3/basic_types.h"
 #include "lifecycle_msgs/msg/state.hpp"
@@ -25,8 +26,12 @@ private:
   void do_work() override;
 
   int counter_;
-  bool fail_flag_ = false;
-  bool action_cancelled_ = false;
+  bool fail_flag_ = true; // true for action failure simulation
+
+  std::random_device rd_;
+  std::mt19937 gen_;
+  std::uniform_int_distribution<> dis_;
+  int prob_ = 10;
 };
 
 }  // namespace plansys2_warehouse
