@@ -1,4 +1,20 @@
-// Copyright 2025 Nicolás García Moncho
+/*
+ * Copyright (C) 2025 Nicolás García Moncho
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef ADD_ROBOT_HPP
 #define ADD_ROBOT_HPP
 
@@ -17,12 +33,10 @@
 class AddRobot
 {
 public:
-  // Constructor: recibe un puntero compartido al problem expert
   explicit AddRobot(std::shared_ptr<plansys2::ProblemExpertClient> problem_expert)
   : problem_expert_(problem_expert)
   {}
 
-  // Método principal: añade predicados relacionados con el robot
   int add_robot(
     const std::string & robot_id, const std::string & initial_location,
     const std::string & robot_zone)
@@ -75,7 +89,6 @@ public:
   {
     std::array<std::string, 2> robot_info;
 
-    // Separar usando el guion bajo como delimitador
     std::stringstream ss(robot_id);
     std::string token;
     std::vector<std::string> parts;
@@ -91,9 +104,6 @@ public:
       std::cerr << "Formato incorrecto." << std::endl;
       return {"", ""};
     }
-
-    // std::cout << "Primera parte: " << robot_info[0] << std::endl;
-    // std::cout << "Última parte: " << robot_info[1] << std::endl;
 
     return robot_info;
   }

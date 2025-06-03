@@ -1,16 +1,20 @@
-// Copyright 2025 Nicolás García Moncho 
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright (C) 2025 Nicolás García Moncho
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 
 #include <chrono>
 #include <fstream>
@@ -289,22 +293,6 @@ public:
   void step()
   {
     check_actions_state();
-    // feedback = executor_client_->getFeedBack();
-    // action_CANCELLED.clear();
-
-    // for (const auto& action_feedback : feedback.action_execution_status)
-    // {
-    //   if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED)
-    //   {
-    //     action_CANCELLED.push_back(action_feedback);
-    //   }
-    // }
-    // for (auto& action : action_CANCELLED)
-    // {
-    //   RCLCPP_INFO(get_logger(), "Action %s CANCELLED", action.action_full_name.c_str());
-    //   problem_checker_->restore_action(action);
-    // }
-
     /////////////////////////////// GOAL ////////////////////////////////////
     plansys2::Goal actual_goal = problem_expert_->getGoal();
 
@@ -433,9 +421,7 @@ private:
         action_CANCELLED.push_back(action_feedback);
       }
     }
-    // for (const auto &action : action_NOT_EXECUTED) {
-    //   RCLCPP_INFO(get_logger(), "Action %s NOT_EXECUTED", action.action_full_name.c_str());
-    // }
+
     RCLCPP_INFO(get_logger(), "ACTIONS STATE ");
 
     for (const auto & action : action_EXECUTING) {
@@ -509,7 +495,6 @@ private:
       return false;
     }
     executor_client_->cancel_plan_execution();
-    // esperar y mirar a ver si sale cancelada con while o hacer maquina estado simple.
     RCLCPP_ERROR(get_logger(), "Plan cancelled");
 
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_EXECUTING;
@@ -517,7 +502,6 @@ private:
     std::vector<plansys2_msgs::msg::ActionExecutionInfo> action_CANCELLED;
 
     revert_actions();
-    // JAMAS SE CANCELAN LAS ACCIONES, SIEMPRE SE QUEDAN EN EXECUTING
 
     auto cancel_msg = std_msgs::msg::String();
     cancel_msg.data = "plan_cancelled";
@@ -557,8 +541,6 @@ private:
       }
 
       std::string robot_init_wp = "unknown_point";
-
-      // RCLCPP_INFO(get_logger(), "Adding new robot %s", robot_name_new.c_str());
 
       int result = add_robot_->add_robot(robot_name_new, robot_init_wp, robot_zone);
       if (result == 0) {

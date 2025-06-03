@@ -1,4 +1,20 @@
-// Copyright 2025 Nicolás García Moncho
+/*
+ * Copyright (C) 2025 Nicolás García Moncho
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef PROBLEM_CHECKER_HPP
 #define PROBLEM_CHECKER_HPP
 
@@ -133,47 +149,26 @@ public:
 
   void restore_action(plansys2_msgs::msg::ActionExecutionInfo & action)
   {
-    // std::cout << "Action: " << action.action << std::endl;
-    // for (const auto& arg : action.arguments) {
-    //   std::cout << "Arg: " << arg << std::endl;
-    // }
+
     if (action.action == "load_box") {
-      // std::cout << "Restoring load_box" << std::endl;
-      // std::cout << "restoring predicates" << std::endl;
-      // std::cout << "(iddle_robot " + action.arguments[0] + ")" << std::endl;
-      // std::cout << "(box_at " + action.arguments[1] + " " + action.arguments[2] + ")" <<
-      // std::endl;
+
       problem_expert_->addPredicate(
           plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
-
-      // problem_expert_->addPredicate(plansys2::Predicate("(robot_at " + action.arguments[0] + " "
-      // + action.arguments[1] + ")"));
       problem_expert_->addPredicate(
           plansys2::Predicate("(box_at " + action.arguments[1] + " " + action.arguments[2] + ")"));
       // std::cout << "restoring functions" << std::endl;
     }
     if (action.action == "move") {
-      // std::cout << "Restoring move" << std::endl;
-      // std::cout << "restoring predicates" << std::endl;
-      // std::cout << "(robot_at " + action.arguments[0] + " unknown_point" + ")" << std::endl;
-      // std::cout << "(idle_robot " + action.arguments[0] + ")" << std::endl;
       problem_expert_->addPredicate(
           plansys2::Predicate("(robot_at " + action.arguments[0] + " unknown_point" + ")"));
       problem_expert_->addPredicate(
           plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
-      // std::cout << "restoring functions" << std::endl;
     }
     if (action.action == "unload_box") {
-      // std::cout << "Restoring unload_box" << std::endl;
-      // std::cout << "restoring predicates" << std::endl;
-      // std::cout << "(iddle_robot " + action.arguments[0] + ")" << std::endl;
-      // std::cout << "(loaded_box " + action.arguments[1] + " " + action.arguments[0] + ")"
-      //           << std::endl;
       problem_expert_->addPredicate(
           plansys2::Predicate("(idle_robot " + action.arguments[0] + ")"));
       problem_expert_->addPredicate(plansys2::Predicate("(loaded_box " + action.arguments[1] + " " +
                                                         action.arguments[0] + ")"));
-      // std::cout << "restoring functions" << std::endl;
     }
   }
 

@@ -1,16 +1,23 @@
-// Copyright 2025 Nicolás García Moncho
+// Copyright 2020 Intelligent Robotics Lab
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "Apache License");
+// you may not use this file except in compliance with the Apache License.
+// You may obtain a copy of the Apache License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Modifications made by Nicolás García Moncho, 2025
+// This file is now distributed under the GNU General Public License v3.0 (GPLv3)
+// for the purpose of integrating it into the project Reasignación Dinámica de Tareas
+// en Sistemas de Planificación Multi-Robot.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+//
+// You may obtain a copy of the GPLv3 at:
+//
+//     https://www.gnu.org/licenses/gpl-3.0.html
 
 #include <iostream>
 #include <string>
@@ -28,15 +35,11 @@ Move::Move()
   get_parameter_or("specialized_arguments", specialized_arguments_, std::vector<std::string>({""}));
 
   RCLCPP_INFO(get_logger(), "Move created");
-  // auto esp_size = specialized_arguments_.size();
-  // RCLCPP_INFO(get_logger(), "Specialized arguments size: %ld", esp_size);
-  // RCLCPP_INFO(get_logger(), "Specialized argument: %s", specialized_arguments_[0].c_str());
 
   std::vector<std::string> wp_names;
   get_parameter_or("waypoints", wp_names, {});
 
   for (const auto & wp : wp_names) {
-    // std::cout << "Waypoint: " << wp << std::endl;
     declare_parameter<std::vector<double>>("waypoint_coords." + wp);
     std::vector<double> coords;
 
@@ -66,8 +69,6 @@ Move::Move()
   pos_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
       "/amcl_pose", 10, std::bind(&Move::current_pos_callback, this, _1));
 
-  cancel_sub_ = create_subscription<std_msgs::msg::String>(
-      "/cancel", 10, std::bind(&Move::cancel_callback, this, _1));
 }
 
 void Move::current_pos_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
@@ -75,26 +76,7 @@ void Move::current_pos_callback(const geometry_msgs::msg::PoseWithCovarianceStam
   current_pos_ = msg->pose.pose;
 }
 
-void Move::cancel_callback(const std_msgs::msg::String::SharedPtr msg)
-{
-  // RCLCPP_INFO(get_logger(), "Cancel received");
-  // if (future_navigation_goal_handle_.valid()) {
-  //   // Obtener el goal_handle de manera segura
-  //   auto goal_handle = future_navigation_goal_handle_.get();
 
-  //   if (goal_handle) {
-  //       // Verificar si el estado de la acción es válido antes de cancelarla
-  //       auto status = goal_handle->get_status();
-
-  //       // Comprobar que la acción está en ejecución antes de cancelarla
-  //       if (status == action_msgs::msg::GoalStatus::STATUS_EXECUTING ||
-  //           status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED) {
-  //           RCLCPP_INFO(get_logger(), "Canceling goal...");
-  //           navigation_action_client_->async_cancel_goal(goal_handle);
-  //       }
-  //   }
-  // }
-}
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 Move::on_activate(const rclcpp_lifecycle::State & previous_state)
@@ -102,28 +84,19 @@ Move::on_activate(const rclcpp_lifecycle::State & previous_state)
   send_feedback(0.0, "Move starting");
 
   std::string robot = get_arguments()[0];
-  // RCLCPP_INFO(get_logger(), "Robot: %s", robot.c_str());
 
   std::string service_name = robot + "/navigate_to_pose";
-  // RCLCPP_INFO(get_logger(), "Service: %s", service_name.c_str());
 
   navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
       shared_from_this(), service_name);
   bool is_action_server_ready = false;
   do {
-    // RCLCPP_INFO(get_logger(), "Waiting for navigation action server...");
-
     is_action_server_ready =
       navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
   } while (!is_action_server_ready);
 
-  // RCLCPP_INFO(get_logger(), "Navigation action server ready");
-  // for (auto argument : get_arguments()) {
-  //   RCLCPP_INFO(get_logger(), "Argument: %s", argument.c_str());
-  // }
 
-  auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
-  // RCLCPP_INFO(get_logger(), "Start navigation to [%s]", wp_to_navigate.c_str());
+  auto wp_to_navigate = get_arguments()[2];
   std::cout << robot <<  " start navigation to " <<  wp_to_navigate.c_str() << std::endl;
 
 
@@ -143,19 +116,6 @@ Move::on_activate(const rclcpp_lifecycle::State & previous_state)
     };
 
   send_goal_options.result_callback = [this](auto result) {
-    // // Verifica si el resultado es válido
-    // std::cout << "Goal result received" << std::endl;
-    // std::cout << "Status: " << static_cast<int>(result.code) << std::endl;
-    // if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-    //   std::cout << "Navigation succeeded!" << std::endl;
-    // } else if (result.code == rclcpp_action::ResultCode::ABORTED) {
-    //   std::cout << "Navigation was aborted!" << std::endl;
-    // } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
-    //   std::cout << "Navigation was canceled!" << std::endl;
-
-    // } else {
-    //   std::cout << "Unknown result code!" << std::endl;
-    // }
       std::cout << get_arguments()[0].c_str() <<  " reached " <<  get_arguments()[2].c_str() << std::endl;
       finish(true, 1.0, "Move completed");
     };
@@ -183,23 +143,6 @@ Move::on_deactivate(const rclcpp_lifecycle::State & previous_state)
           navigation_action_client_->async_cancel_goal(goal_handle);
           finish(false, 0.0, "Move canceled");
           break;
-
-        // case action_msgs::msg::GoalStatus::STATUS_SUCCEEDED:
-        //   RCLCPP_INFO(get_logger(), "Goal succeeded");
-        //   break;
-
-        // case action_msgs::msg::GoalStatus::STATUS_ABORTED:
-        //   RCLCPP_WARN(get_logger(), "Goal aborted!");
-        //   break;
-
-        // case action_msgs::msg::GoalStatus::STATUS_CANCELED:
-        //   RCLCPP_INFO(get_logger(), "Goal was already canceled");
-        //   break;
-
-        // case action_msgs::msg::GoalStatus::STATUS_CANCELING:
-        //   RCLCPP_INFO(get_logger(), "Goal is being canceled");
-        //   break;
-
         default:
           break;
       }
@@ -218,20 +161,8 @@ double Move::getDistance(
 
 void Move::do_work()
 {
-  // if (ActionExecutorClient::should_cancel_goal()) {
-  //   RCLCPP_WARN(get_logger(), "Move action was canceled!");
-
-  //   // if (future_navigation_goal_handle_.valid()) {
-  //   //     auto goal_handle = future_navigation_goal_handle_.get();
-  //   //     if (goal_handle) {
-  //   //         navigation_action_client_->async_cancel_goal(goal_handle);
-  //   //     }
-  //   // }
-
-  //   finish(false, 0.0, "Move action canceled");
-  //   return;
 }
-}  // namespace plansys2_warehouse
+}  
 // namespace plansys2_house_problem
 
 int main(int argc, char ** argv)

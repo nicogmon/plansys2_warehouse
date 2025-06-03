@@ -1,16 +1,20 @@
-// Copyright 2025 Nicolás García Moncho
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright (C) 2025 Nicolás García Moncho
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 
 #include <iostream>
 #include <string>
@@ -39,7 +43,6 @@ Unload_box::Unload_box()
 void Unload_box::do_work()
 {
   if (counter_ == 0){
-  // RCLCPP_INFO(get_logger(), "%s unloading box %s",get_arguments()[0].c_str(), get_arguments()[1].c_str());
   std::cout << get_arguments()[0].c_str() << " unloading box " << get_arguments()[1].c_str() << std::endl;
   }
 
@@ -56,22 +59,16 @@ void Unload_box::do_work()
   if (counter_ < 5) {
     send_feedback(counter_, "Unload running");
   } else {
-    // RCLCPP_INFO(get_logger(), "%s unloaded at %s",get_arguments()[1].c_str(), get_arguments()[2].c_str());
     std::cout << get_arguments()[1].c_str() << " unloaded at " << get_arguments()[2].c_str() << std::endl;
     counter_ = 0;
-    finish(true, 1.0, "Unload completed");  // segundo parametro nos puede servir
-                                            // para indicar fallo a mitad de ejecucion
-                                            //  y el rpimero indicar que ha fallado la accion
+    finish(true, 1.0, "Unload completed");
   }
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 Unload_box::on_deactivate(const rclcpp_lifecycle::State & previous_state)
 {
-  // RCLCPP_INFO(get_logger(), "Unload_box deactivated");
   counter_ = 0;
-
-  // finish(true, 1.0, "Unload_box deactivated");
   return ActionExecutorClient::on_deactivate(previous_state);
 }
 

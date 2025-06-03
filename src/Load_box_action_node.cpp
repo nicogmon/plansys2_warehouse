@@ -1,16 +1,19 @@
-// Copyright 2025 Nicolás García Moncho
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright (C) 2025 Nicolás García Moncho
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include <iostream>
 #include <string>
@@ -33,7 +36,7 @@ Load_box::Load_box()
   auto esp_size = specialized_arguments_.size();
   RCLCPP_INFO(get_logger(), "Specialized arguments size: %ld", esp_size);
   RCLCPP_INFO(get_logger(), "Specialized argument: %s", specialized_arguments_[0].c_str());
-  // if (strcmp(specialized_arguments_[0].c_str(), "small_robot_1") == 0) {
+  // if (strcmp(specialized_arguments_[0].c_str(), "small_robot_1") == 0) {  //Permite simular el fallo de un único robot 
   //   fail_flag_ = true;
   // }
 }
@@ -41,13 +44,13 @@ Load_box::Load_box()
 void Load_box::do_work()
 {
   if (counter_ == 0){
-  // RCLCPP_INFO(get_logger(), "%s loading box %s",get_arguments()[0].c_str(), get_arguments()[1].c_str());
+
   std::cout << get_arguments()[0].c_str() << " loading box " << get_arguments()[1].c_str() << std::endl;
   }
   counter_++;
   
 
-  // if (strcmp(specialized_arguments_[0].c_str(), "small_robot_1") == 0) {
+  // if (strcmp(specialized_arguments_[0].c_str(), "small_robot_1") == 0) {  //Permite modificar la probabilidad de fallo de un robot concreto
   //   prob = 2;
   // }
   if ((dis_(gen_) == 0) && fail_flag_) {
@@ -63,7 +66,6 @@ void Load_box::do_work()
   } else {
     counter_ = 0;
     std::cout << get_arguments()[1].c_str() << " unloaded at " << get_arguments()[0].c_str() << std::endl;
-    // RCLCPP_INFO(get_logger(), "%s loaded at %s",get_arguments()[1].c_str(), get_arguments()[0].c_str());
     finish(true, 1.0, "Load completed");
   }
 }
